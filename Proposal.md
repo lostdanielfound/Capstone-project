@@ -21,3 +21,11 @@ While these are great and rebust backup managers, they do come with a cost that 
 I want to create a Desktop Backup manager, ideally, this manager will allow the user to create and manage their backups of any type of file system, this system should be robust but also allow customization of the backup process, i.e: scheduling, incremental / decremental types, backup destination, and backup encryption. 
 
 ## Algoithms and resources
+A Compression algorithm that will not only compress a file within a directory but also the directory itself, and most importantly a decompression algorithm to unpack the image. 
+
+A searching algorithm would be needed to implement File and Folder backup feature to search for which files have been changed either added into the directory or removed. 
+
+I will be using Visual Basic to develop and design the GUI since it allows me to work very closly with the .NET framework and will make it easy for Directory and Drive selection. 
+
+Another thing to think about is Unit testing, testing will be and should be frequent ensure that data content is being properly compressed and decompressed during the backup process. 
+
