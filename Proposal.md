@@ -52,3 +52,11 @@ The timeline of this project is high-leveled at the moment but I will put in fin
 
 ### December - Production
 - [ ] Build Application on Github and "Easy setup" process for the user.
+
+## Deliverables
+I hope to being into production a Backup manager that  will do the following:  
+ - Basic Directory and file backups 
+ - Perform Full, Increment / Decremental, Differetial backups 
+ - Compression backups and Decompress them. 
+ - Schedule backups according to Time or process signal.
+ - Display currently scheduled backups jobs.
