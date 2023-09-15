@@ -1,0 +1,16 @@
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\bin\Debug\net6.0-windows\BoxIT_Project.exe
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\bin\Debug\net6.0-windows\BoxIT_Project.deps.json
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\bin\Debug\net6.0-windows\BoxIT_Project.runtimeconfig.json
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\bin\Debug\net6.0-windows\BoxIT_Project.dll
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\bin\Debug\net6.0-windows\BoxIT_Project.pdb
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.Form1.resources
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.vbproj.GenerateResource.cache
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.AssemblyInfoInputs.cache
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.AssemblyInfo.vb
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.vbproj.CoreCompileInputs.cache
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.dll
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\refint\BoxIT_Project.dll
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.pdb
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.genruntimeconfig.cache
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\ref\BoxIT_Project.dll
