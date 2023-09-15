@@ -32,9 +32,10 @@ Another thing to think about is Unit testing, testing will be and should be freq
 ## Project Timeline
 The timeline of this project is high-leveled at the moment but I will put in finer details later on.
 
-### September - Learning phase
- - [ ] Review how to use Visual Basic and the .NET Framework. 
- - [ ] Create basic searching algorithm that will record and find which files have changed within a span of time. (Incremental backup) 
+### September - Learning phase / Pre-working phase
+ - [ ] Review how to use Visual Basic and the .NET Framework.
+ - [ ] Create basic searching algorithm that will record and find which files have changed within a span of time. (Incremental backup)
+ - [ ] 
  - [ ] Get in touch with Parallel Professor to talk about compression algorithm would be best for backing up files. (Data Compresion)
 
 ### October - Working phase
