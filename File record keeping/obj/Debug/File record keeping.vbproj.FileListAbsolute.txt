@@ -1,0 +1,14 @@
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\bin\Debug\File record keeping.exe.config
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\bin\Debug\File record keeping.exe
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\bin\Debug\File record keeping.pdb
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\bin\Debug\File record keeping.xml
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\obj\Debug\File record keeping.vbproj.AssemblyReference.cache
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\obj\Debug\File_record_keeping.Resources.resources
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\obj\Debug\File record keeping.vbproj.GenerateResource.cache
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\obj\Debug\File record keeping.vbproj.CoreCompileInputs.cache
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\obj\Debug\File record keeping.vbproj.CopyComplete
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\obj\Debug\File record keeping.exe
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\obj\Debug\File record keeping.xml
+C:\Users\Guzman\Desktop\Capstone-project\File record keeping\obj\Debug\File record keeping.pdb

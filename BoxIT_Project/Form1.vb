@@ -1,4 +1,5 @@
 ﻿Imports System.IO.Compression
+Imports System.Diagnostics
 
 Public Class Form1
 
@@ -82,7 +83,8 @@ Public Class Form1
 
         '2nd Obj: Create Zip file and store it within Dest directory
         Log("Compressing Src directory and storing it in " & Dest)
-        ZipFile.CreateFromDirectory(Src, Dest & "\Backup.zip", CompressionLevel.SmallestSize, False)
+        Dim ZipUuid As String = Guid.NewGuid().ToString() 'Generating new uuid
+        ZipFile.CreateFromDirectory(Src, Dest & "\Backup_" & ZipUuid & ".zip", CompressionLevel.SmallestSize, False)
 
     End Sub
 
