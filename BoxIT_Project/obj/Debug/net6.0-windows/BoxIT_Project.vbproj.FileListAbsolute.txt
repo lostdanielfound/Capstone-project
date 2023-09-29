@@ -14,3 +14,6 @@ C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\
 C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.pdb
 C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.genruntimeconfig.cache
 C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\ref\BoxIT_Project.dll
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\bin\Debug\net6.0-windows\Newtonsoft.Json.dll
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.vbproj.AssemblyReference.cache
+C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\obj\Debug\net6.0-windows\BoxIT_Project.vbproj.CopyComplete

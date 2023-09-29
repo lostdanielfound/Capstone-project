@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "ylydlKUCIaFARq5/zQV3Yu5FRRiGzxFakCUYtp8d3Aow46goAbX4EyBAhFWGrgoDWs7BsKZhMwhPCw/6+Lpy2A==",
+  "dgSpecHash": "x0ZnRIY2B0dC8tEpeDlf4fIF75Z9pZiCN92q0ON6+BQtZXkDh289OZGndkj4ZMnEJEvg0AGS0j+65lxYjxarOg==",
   "success": true,
   "projectFilePath": "C:\\Users\\Guzman\\Desktop\\Capstone-project\\BoxIT_Project\\BoxIT_Project.vbproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Guzman\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
   "logs": []
 }

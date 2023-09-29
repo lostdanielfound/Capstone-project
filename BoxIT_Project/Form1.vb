@@ -1,4 +1,5 @@
-﻿Imports System.IO.Compression
+﻿Imports System.Linq
+Imports System.IO.Compression
 Imports System.Diagnostics
 
 Public Class Form1
@@ -86,9 +87,55 @@ Public Class Form1
         Dim ZipUuid As String = Guid.NewGuid().ToString() 'Generating new uuid
         ZipFile.CreateFromDirectory(Src, Dest & "\Backup_" & ZipUuid & ".zip", CompressionLevel.SmallestSize, False)
 
+        '3rd Obj: Write new schedule to list
+        Dim jsonManipObj As JsonManip = New JsonManip()
+        jsonManipObj.ReadAndParseJsonFileWithNewTonsoftJson("Plans.json")
+
+        Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True)
+        jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, Today.ToString(), Src, Dest, BackupPlan.FullBackup)
+    End Sub
+
+    Private Sub BackupNameTextBox_TextChanged(sender As Object, e As EventArgs) Handles BackupNameTextBox.TextChanged
+        If BackupNameTextBox.Text IsNot String.Empty Then
+            BackupBtn.Enabled = True
+        Else
+            BackupBtn.Enabled = False
+        End If
     End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Label2.Text = ""
+
+        ' ======== Data source reading ======== 
+        Dim jsonManipObj As JsonManip = New JsonManip()
+        jsonManipObj.ReadAndParseJsonFileWithNewTonsoftJson("Plans.json")
+
+        For Each plan As Plan In jsonManipObj.ReadFromJsonFile()
+            Dim newRow As New DataGridViewRow() 'Creating new row
+
+            For index = 1 To 5 'Adding cells to row
+                newRow.Cells.Add(New DataGridViewTextBoxCell())
+            Next
+
+            'populate cells
+            newRow.Cells(0).Value = plan.Name
+            newRow.Cells(1).Value = plan.Nxt_backup
+            newRow.Cells(2).Value = plan.Src
+            newRow.Cells(3).Value = plan.Dst
+            Select Case plan.backupPlan
+                Case BackupPlan.FullBackup
+                    newRow.Cells(4).Value = "Full Backup"
+                Case BackupPlan.IncrementalBackup
+                    newRow.Cells(4).Value = "Incremental Backup"
+                Case BackupPlan.DifferentialBackup
+                    newRow.Cells(4).Value = "Differential Backup"
+                Case Else
+                    newRow.Cells(4).Value = "None"
+            End Select
+
+            CurrentPlanList.Rows.Add(newRow) 'Add the row to the current list
+        Next
+
     End Sub
+
 End Class
