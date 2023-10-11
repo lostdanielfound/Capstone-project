@@ -1,0 +1,16 @@
+[
+    {
+        "Name":"SpeciaLbackup",
+        "Nxt_backup":"10/3/2023 12:00:00 AM",
+        "Src":"C:\\Users\\Guzman\\Desktop\\go_web",
+        "Dst":"Users\\Guzman\\Desktop\\json",
+        "backupPlan":0
+    },
+    {
+        "Name":"anotherbackup",
+        "Nxt_backup":"10/3/2023 12:00:00 AM",
+        "Src":"C:\\Users\\Guzman\\Documents\\Call of Duty",
+        "Dst":"C:\\Users\\Guzman\\Desktop\\Dest_backup",
+        "backupPlan":0
+    }
+]

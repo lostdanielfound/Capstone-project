@@ -1,6 +1,5 @@
-﻿Imports System.Linq
+﻿Imports System.IO
 Imports System.IO.Compression
-Imports System.Diagnostics
 
 Public Class Form1
 
@@ -27,88 +26,50 @@ Public Class Form1
 
     End Sub
 
-    '===================
-    ' Form variables
-    '===================
-    Dim Src As String
-    Dim Dest As String = "%userprofile\Documents\BoxIT_Backups" 'Default Backup destination
-    Dim SrcChosen As Boolean = False
-    Dim DestChosen As Boolean = False
-    Dim DefaultSelection As Boolean = True
-
-    '===================
-    ' Event Handlers
-    '===================
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles AddBackupPlanBtn.Click
-        Dim folderSelectionDig As New FolderBrowserDialog
-        folderSelectionDig.ShowNewFolderButton = False
-
-        Log("Showing folder selection Dialog to select backup src")
-        Dim ReturnResult As DialogResult = folderSelectionDig.ShowDialog()
-
-        Select Case ReturnResult
-            Case DialogResult.OK 'Set the backup source
-                Src = folderSelectionDig.SelectedPath
-                Label1.Text = folderSelectionDig.SelectedPath
-                SrcChosen = True
-                Log("Set Src as " & Src)
-
-                AddDestBtn.Enabled = True
-            Case DialogResult.Cancel 'Dialog failed, disable AddDestBtn if Src is empty
-                AddDestBtn.Enabled = (Src <> "")
+    Public Sub SchedulePlanTask(Src As String, Dst As String, BackUpName As String, BackUpType As BackupPlan, ST As ScheduleType)
+        Dim TaskName = "BoxIT_" & BackUpName & "_"
+        Dim ScheduleT As String
+        Dim cmdline As String
+        Dim ExecutibleName = "Zip_Process.exe"
+        Select Case BackUpType 'Append BackupType to the Task name
+            Case BackupPlan.FullBackup
+                TaskName &= "FullBackup"
+            Case BackupPlan.IncrementalBackup
+                TaskName &= "IncrementalBackup"
+            Case BackupPlan.DifferentialBackup
+                TaskName &= "DifferentialBackup"
+            Case Else
         End Select
+        TaskName &= Guid.NewGuid.ToString()
+
+        Select Case ST
+            Case ScheduleType.Daily
+                ScheduleT = "daily"
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
+                Log("Executing CMD scheduler command:" & cmdline)
+                Shell(cmdline)
+            Case ScheduleType.Weekly
+                ScheduleT = "weekly"
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
+                Log("Executing CMD scheduler command:" & cmdline)
+                Shell(cmdline)
+            Case ScheduleType.Monthly
+                ScheduleT = "monthly"
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
+                Log(cmdline)
+                Shell(cmdline)
+            Case ScheduleType.Yearly
+                ScheduleT = "monthly"
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
+                Log(cmdline)
+                Shell(cmdline)
+        End Select
+
     End Sub
 
-    Private Sub AddDestBtnClick(sender As Object, e As EventArgs) Handles AddDestBtn.Click
-        Dim folderSelectionDig As New FolderBrowserDialog
-        folderSelectionDig.ShowNewFolderButton = False
-
-        If folderSelectionDig.ShowDialog() = Windows.Forms.DialogResult.OK Then
-            Dest = folderSelectionDig.SelectedPath
-            Label2.Text = Dest
-            DestChosen = True
-
-            Log("Set Dest as " & Dest)
-
-            'Unlock Start Backup Button after user has selected Src and Dest
-            If SrcChosen And DestChosen Then
-                BackupBtn.Enabled = True
-            End If
-        End If
-    End Sub
-
-    Private Sub BackupBtn_Click(sender As Object, e As EventArgs) Handles BackupBtn.Click
-        '1st Obj: Perform token reading,
-        'Check to ensure that any folder / file is named the same as output Zip file
-        ReadDirectory(Dest)
-
-        '2nd Obj: Create Zip file and store it within Dest directory
-        Log("Compressing Src directory and storing it in " & Dest)
-        Dim ZipUuid As String = Guid.NewGuid().ToString() 'Generating new uuid
-        ZipFile.CreateFromDirectory(Src, Dest & "\Backup_" & ZipUuid & ".zip", CompressionLevel.SmallestSize, False)
-
-        '3rd Obj: Write new schedule to list
+    Private Sub PopulatePlansTable()
         Dim jsonManipObj As JsonManip = New JsonManip()
-        jsonManipObj.ReadAndParseJsonFileWithNewTonsoftJson("Plans.json")
-
-        Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True)
-        jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, Today.ToString(), Src, Dest, BackupPlan.FullBackup)
-    End Sub
-
-    Private Sub BackupNameTextBox_TextChanged(sender As Object, e As EventArgs) Handles BackupNameTextBox.TextChanged
-        If BackupNameTextBox.Text IsNot String.Empty Then
-            BackupBtn.Enabled = True
-        Else
-            BackupBtn.Enabled = False
-        End If
-    End Sub
-
-    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        Label2.Text = ""
-
-        ' ======== Data source reading ======== 
-        Dim jsonManipObj As JsonManip = New JsonManip()
-        jsonManipObj.ReadAndParseJsonFileWithNewTonsoftJson("Plans.json")
+        jsonManipObj.SetJsonFile("Plans.json")
 
         For Each plan As Plan In jsonManipObj.ReadFromJsonFile()
             Dim newRow As New DataGridViewRow() 'Creating new row
@@ -135,7 +96,137 @@ Public Class Form1
 
             CurrentPlanList.Rows.Add(newRow) 'Add the row to the current list
         Next
+    End Sub
 
+    '===================
+    ' Form variables
+    '===================
+    Dim Src As String = String.Empty
+    Dim Dest As String = "%userprofile\Documents\BoxIT_Backups" 'Default Backup destination
+
+    'Flags for user progression
+    Dim SrcChosen = False
+    Dim DestChosen = False
+    Dim ScheduleTypeChosen = False
+    Dim BackupNameChosen = False
+
+    '===================
+    ' Event Handlers
+    '===================
+    Private Sub AddSourceBtnClick(sender As Object, e As EventArgs) Handles AddSourceBtn.Click
+
+        'Bring up Dialog to select source
+        Dim folderSelectionDig As New FolderBrowserDialog With {
+            .ShowNewFolderButton = False
+        }
+
+        Log("Showing folder selection Dialog to select backup src")
+        Dim ReturnResult As DialogResult = folderSelectionDig.ShowDialog()
+
+        Select Case ReturnResult
+            Case DialogResult.OK 'Set the backup source
+                Src = folderSelectionDig.SelectedPath
+                Label1.Text = folderSelectionDig.SelectedPath
+                SrcChosen = True 'Set flag
+                Log("Set Src as " & Src)
+
+                AddDestBtn.Enabled = True
+            Case DialogResult.Cancel 'Dialog failed, reset flag
+                SrcChosen = False
+                Label1.Text = "Please select a Source"
+                Src = String.Empty
+        End Select
+
+        Backup_Plan_RadioSelection.Enabled = (SrcChosen And DestChosen)
+
+        BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
+    End Sub
+
+    Private Sub AddDestBtnClick(sender As Object, e As EventArgs) Handles AddDestBtn.Click
+
+        'Bring up Dialog to select source
+        Dim folderSelectionDig As New FolderBrowserDialog With {
+            .ShowNewFolderButton = False
+        }
+
+        Dim ReturnResult = folderSelectionDig.ShowDialog()
+
+        Select Case ReturnResult
+            Case DialogResult.OK
+                Dest = folderSelectionDig.SelectedPath
+                Label2.Text = Dest
+                DestChosen = True
+                Log("Set Dest as " & Dest)
+            Case DialogResult.Cancel 'Reset flag and Dest 
+                DestChosen = False
+                Label2.Text = "Please select a Destination"
+                Dest = String.Empty
+        End Select
+
+        Backup_Plan_RadioSelection.Enabled = (SrcChosen And DestChosen)
+
+        BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
+    End Sub
+
+    Private Sub QuickBackupBtn_Click(sender As Object, e As EventArgs) Handles QuickBackupBtn.Click
+        If Src = "" Or Dest = "" Then 'Check if Src and Dest have been selected 
+            MsgBox("Please select a Source and Destination!", MsgBoxStyle.Information, "No Source or Destination")
+            Return
+        End If
+
+        '2nd Obj: Create Zip file and store it within Dest directory
+        Log("Compressing Src directory and storing it in " & Dest)
+        Dim ZipUuid As String = Guid.NewGuid().ToString() 'Generating new uuid
+        Log("Start Compression")
+        ZipFile.CreateFromDirectory(Src, Dest & "\Backup_" & ZipUuid & ".zip", CompressionLevel.SmallestSize, False)
+        Log("Finished Compression")
+        MsgBox("Backup has been created!", MsgBoxStyle.OkOnly, "Backup Complete")
+    End Sub
+
+    Private Sub BackupBtn_Click(sender As Object, e As EventArgs) Handles BackupBtn.Click
+        'Check to ensure that any folder / file is named the same as output Zip file
+        'Ensure that User has selected a valid Src and Dest
+        If Src = "" Or Dest = "" Then
+            MsgBox("Please select a Source and Destination!", MsgBoxStyle.Information, "No Source or Destination")
+            Return
+        End If
+
+        Dim jsonManipObj As JsonManip = New JsonManip()
+        jsonManipObj.SetJsonFile("Plans.json")
+
+        'Gets the current selected Radiobutton
+        Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True)
+
+        If selectedRadioButton.Text = "Full Backup" Then
+            SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.FullBackup, ScheduleTypeComboBox.SelectedIndex)
+            jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, Today.AddDays(1).ToString(), Src, Dest, BackupPlan.FullBackup)
+        ElseIf selectedRadioButton.Text = "Incremental" Then 'TODO: Add Incremental backup features
+            SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.IncrementalBackup, ScheduleTypeComboBox.SelectedIndex)
+            jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.IncrementalBackup)
+        ElseIf selectedRadioButton.Text = "Differntial" Then 'TODO: Add Incremental backup features
+            SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.DifferentialBackup, ScheduleTypeComboBox.SelectedIndex)
+            jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.DifferentialBackup)
+        End If
+
+        'Conclude Plan addition
+        MsgBox(selectedRadioButton.Text & " plan has been created!", vbOKOnly, "Backup Plan")
+        PopulatePlansTable() 'RePopulating Plans Data table
+    End Sub
+
+    Private Sub BackupNameTextBox_TextChanged(sender As Object, e As EventArgs) Handles BackupNameTextBox.TextChanged
+        BackupNameChosen = (BackupNameTextBox.Text <> String.Empty)
+        BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
+        Log(SrcChosen.ToString() & DestChosen.ToString() & ScheduleTypeChosen.ToString() & BackupNameChosen.ToString())
+    End Sub
+
+    Private Sub ScheduleTypeComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ScheduleTypeComboBox.SelectedIndexChanged
+        ScheduleTypeChosen = (ScheduleTypeComboBox.SelectedItem.ToString() <> String.Empty)
+        BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
+        Log(SrcChosen.ToString() & DestChosen.ToString() & ScheduleTypeChosen.ToString() & BackupNameChosen.ToString())
+    End Sub
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        PopulatePlansTable() 'Populating Plans Data table'
     End Sub
 
 End Class

@@ -22,13 +22,16 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        AddBackupPlanBtn = New Button()
+        AddSourceBtn = New Button()
         Label1 = New Label()
         Panel1 = New Panel()
+        Label3 = New Label()
+        ScheduleTypeComboBox = New ComboBox()
+        QuickBackupBtn = New Button()
         Backup_Plan_RadioSelection = New GroupBox()
-        RadioButton3 = New RadioButton()
         RadioButton1 = New RadioButton()
         RadioButton2 = New RadioButton()
+        RadioButton3 = New RadioButton()
         BackupNameTextBox = New TextBox()
         Label4 = New Label()
         CurrentPlanList = New DataGridView()
@@ -45,20 +48,20 @@ Partial Class Form1
         CType(CurrentPlanList, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
-        ' AddBackupPlanBtn
+        ' AddSourceBtn
         ' 
-        AddBackupPlanBtn.Location = New Point(3, 3)
-        AddBackupPlanBtn.Name = "AddBackupPlanBtn"
-        AddBackupPlanBtn.Size = New Size(139, 23)
-        AddBackupPlanBtn.TabIndex = 0
-        AddBackupPlanBtn.Text = "+ Add Backup Plan"
-        AddBackupPlanBtn.UseVisualStyleBackColor = True
+        AddSourceBtn.Location = New Point(3, 3)
+        AddSourceBtn.Name = "AddSourceBtn"
+        AddSourceBtn.Size = New Size(124, 23)
+        AddSourceBtn.TabIndex = 0
+        AddSourceBtn.Text = "+ Add Source"
+        AddSourceBtn.UseVisualStyleBackColor = True
         ' 
         ' Label1
         ' 
         Label1.AutoSize = True
         Label1.Font = New Font("Quicksand", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        Label1.Location = New Point(148, 7)
+        Label1.Location = New Point(133, 8)
         Label1.Name = "Label1"
         Label1.Size = New Size(133, 18)
         Label1.TabIndex = 1
@@ -66,6 +69,9 @@ Partial Class Form1
         ' 
         ' Panel1
         ' 
+        Panel1.Controls.Add(Label3)
+        Panel1.Controls.Add(ScheduleTypeComboBox)
+        Panel1.Controls.Add(QuickBackupBtn)
         Panel1.Controls.Add(Backup_Plan_RadioSelection)
         Panel1.Controls.Add(BackupNameTextBox)
         Panel1.Controls.Add(Label4)
@@ -73,41 +79,60 @@ Partial Class Form1
         Panel1.Controls.Add(BackupBtn)
         Panel1.Controls.Add(Label2)
         Panel1.Controls.Add(AddDestBtn)
-        Panel1.Controls.Add(AddBackupPlanBtn)
+        Panel1.Controls.Add(AddSourceBtn)
         Panel1.Controls.Add(Label1)
         Panel1.Font = New Font("Quicksand", 9F, FontStyle.Regular, GraphicsUnit.Point)
         Panel1.Location = New Point(12, 12)
         Panel1.Name = "Panel1"
-        Panel1.Size = New Size(774, 438)
+        Panel1.Size = New Size(803, 383)
         Panel1.TabIndex = 2
+        ' 
+        ' Label3
+        ' 
+        Label3.AutoSize = True
+        Label3.Location = New Point(190, 61)
+        Label3.Name = "Label3"
+        Label3.Size = New Size(123, 18)
+        Label3.TabIndex = 15
+        Label3.Text = "Select schedule type"
+        ' 
+        ' ScheduleTypeComboBox
+        ' 
+        ScheduleTypeComboBox.DropDownStyle = ComboBoxStyle.DropDownList
+        ScheduleTypeComboBox.FormattingEnabled = True
+        ScheduleTypeComboBox.Items.AddRange(New Object() {"Daily", "Weekly", "Monthly", "Yearly"})
+        ScheduleTypeComboBox.Location = New Point(190, 82)
+        ScheduleTypeComboBox.Name = "ScheduleTypeComboBox"
+        ScheduleTypeComboBox.Size = New Size(123, 26)
+        ScheduleTypeComboBox.TabIndex = 14
+        ' 
+        ' QuickBackupBtn
+        ' 
+        QuickBackupBtn.Enabled = False
+        QuickBackupBtn.Location = New Point(658, 110)
+        QuickBackupBtn.Name = "QuickBackupBtn"
+        QuickBackupBtn.Size = New Size(139, 31)
+        QuickBackupBtn.TabIndex = 13
+        QuickBackupBtn.Text = "Quick Backup"
+        QuickBackupBtn.UseVisualStyleBackColor = True
         ' 
         ' Backup_Plan_RadioSelection
         ' 
-        Backup_Plan_RadioSelection.Controls.Add(RadioButton3)
         Backup_Plan_RadioSelection.Controls.Add(RadioButton1)
         Backup_Plan_RadioSelection.Controls.Add(RadioButton2)
+        Backup_Plan_RadioSelection.Controls.Add(RadioButton3)
+        Backup_Plan_RadioSelection.Enabled = False
         Backup_Plan_RadioSelection.Location = New Point(4, 61)
         Backup_Plan_RadioSelection.Name = "Backup_Plan_RadioSelection"
-        Backup_Plan_RadioSelection.Size = New Size(180, 110)
+        Backup_Plan_RadioSelection.Size = New Size(180, 117)
         Backup_Plan_RadioSelection.TabIndex = 12
         Backup_Plan_RadioSelection.TabStop = False
-        Backup_Plan_RadioSelection.Text = "Please select a backup Plan"
-        ' 
-        ' RadioButton3
-        ' 
-        RadioButton3.AutoSize = True
-        RadioButton3.Enabled = False
-        RadioButton3.Location = New Point(15, 77)
-        RadioButton3.Name = "RadioButton3"
-        RadioButton3.Size = New Size(82, 22)
-        RadioButton3.TabIndex = 7
-        RadioButton3.TabStop = True
-        RadioButton3.Text = "Differntial"
-        RadioButton3.UseVisualStyleBackColor = True
+        Backup_Plan_RadioSelection.Text = "Select a backup Plan"
         ' 
         ' RadioButton1
         ' 
         RadioButton1.AutoSize = True
+        RadioButton1.Checked = True
         RadioButton1.Location = New Point(15, 21)
         RadioButton1.Name = "RadioButton1"
         RadioButton1.Size = New Size(90, 22)
@@ -125,21 +150,31 @@ Partial Class Form1
         RadioButton2.Name = "RadioButton2"
         RadioButton2.Size = New Size(93, 22)
         RadioButton2.TabIndex = 6
-        RadioButton2.TabStop = True
         RadioButton2.Text = "Incremental"
         RadioButton2.UseVisualStyleBackColor = True
         ' 
+        ' RadioButton3
+        ' 
+        RadioButton3.AutoSize = True
+        RadioButton3.Enabled = False
+        RadioButton3.Location = New Point(15, 77)
+        RadioButton3.Name = "RadioButton3"
+        RadioButton3.Size = New Size(82, 22)
+        RadioButton3.TabIndex = 7
+        RadioButton3.Text = "Differntial"
+        RadioButton3.UseVisualStyleBackColor = True
+        ' 
         ' BackupNameTextBox
         ' 
-        BackupNameTextBox.Location = New Point(204, 81)
+        BackupNameTextBox.Location = New Point(190, 144)
         BackupNameTextBox.Name = "BackupNameTextBox"
-        BackupNameTextBox.Size = New Size(100, 22)
+        BackupNameTextBox.Size = New Size(167, 22)
         BackupNameTextBox.TabIndex = 11
         ' 
         ' Label4
         ' 
         Label4.AutoSize = True
-        Label4.Location = New Point(202, 61)
+        Label4.Location = New Point(190, 123)
         Label4.Name = "Label4"
         Label4.Size = New Size(102, 18)
         Label4.TabIndex = 10
@@ -149,10 +184,10 @@ Partial Class Form1
         ' 
         CurrentPlanList.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
         CurrentPlanList.Columns.AddRange(New DataGridViewColumn() {CurrentPlanList_Name, CurrentPlanList_NxtBackup, CurrentPlanList_Source, CurrentPlanList_Dest, CurrentPlanList_Plan})
-        CurrentPlanList.Location = New Point(4, 241)
+        CurrentPlanList.Location = New Point(3, 184)
         CurrentPlanList.Name = "CurrentPlanList"
         CurrentPlanList.RowTemplate.Height = 25
-        CurrentPlanList.Size = New Size(767, 190)
+        CurrentPlanList.Size = New Size(794, 190)
         CurrentPlanList.TabIndex = 9
         ' 
         ' CurrentPlanList_Name
@@ -160,6 +195,7 @@ Partial Class Form1
         CurrentPlanList_Name.HeaderText = "Name"
         CurrentPlanList_Name.Name = "CurrentPlanList_Name"
         CurrentPlanList_Name.ReadOnly = True
+        CurrentPlanList_Name.Width = 150
         ' 
         ' CurrentPlanList_NxtBackup
         ' 
@@ -172,12 +208,14 @@ Partial Class Form1
         CurrentPlanList_Source.HeaderText = "Source"
         CurrentPlanList_Source.Name = "CurrentPlanList_Source"
         CurrentPlanList_Source.ReadOnly = True
+        CurrentPlanList_Source.Width = 200
         ' 
         ' CurrentPlanList_Dest
         ' 
         CurrentPlanList_Dest.HeaderText = "Destination"
         CurrentPlanList_Dest.Name = "CurrentPlanList_Dest"
         CurrentPlanList_Dest.ReadOnly = True
+        CurrentPlanList_Dest.Width = 200
         ' 
         ' CurrentPlanList_Plan
         ' 
@@ -188,29 +226,29 @@ Partial Class Form1
         ' BackupBtn
         ' 
         BackupBtn.Enabled = False
-        BackupBtn.Location = New Point(19, 190)
+        BackupBtn.Location = New Point(658, 147)
         BackupBtn.Name = "BackupBtn"
         BackupBtn.Size = New Size(139, 31)
         BackupBtn.TabIndex = 4
-        BackupBtn.Text = "Start Backup"
+        BackupBtn.Text = "Start Backup Plan"
         BackupBtn.UseVisualStyleBackColor = True
         ' 
         ' Label2
         ' 
         Label2.AutoSize = True
         Label2.Font = New Font("Quicksand", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        Label2.Location = New Point(148, 36)
+        Label2.Location = New Point(133, 37)
         Label2.Name = "Label2"
-        Label2.Size = New Size(156, 18)
+        Label2.Size = New Size(158, 18)
         Label2.TabIndex = 3
-        Label2.Text = "Please select a destination"
+        Label2.Text = "Please select a Destination"
         ' 
         ' AddDestBtn
         ' 
         AddDestBtn.Enabled = False
         AddDestBtn.Location = New Point(3, 32)
         AddDestBtn.Name = "AddDestBtn"
-        AddDestBtn.Size = New Size(139, 23)
+        AddDestBtn.Size = New Size(124, 23)
         AddDestBtn.TabIndex = 2
         AddDestBtn.Text = "+ Add Destination"
         AddDestBtn.UseVisualStyleBackColor = True
@@ -219,7 +257,7 @@ Partial Class Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(797, 455)
+        ClientSize = New Size(829, 402)
         Controls.Add(Panel1)
         Name = "Form1"
         Text = "Form1"
@@ -231,7 +269,7 @@ Partial Class Form1
         ResumeLayout(False)
     End Sub
 
-    Friend WithEvents AddBackupPlanBtn As Button
+    Friend WithEvents AddSourceBtn As Button
     Friend WithEvents Label1 As Label
     Friend WithEvents Panel1 As Panel
     Friend WithEvents Label2 As Label
@@ -241,12 +279,15 @@ Partial Class Form1
     Friend WithEvents RadioButton2 As RadioButton
     Friend WithEvents RadioButton1 As RadioButton
     Friend WithEvents CurrentPlanList As DataGridView
+    Friend WithEvents Label4 As Label
+    Friend WithEvents BackupNameTextBox As TextBox
+    Friend WithEvents Backup_Plan_RadioSelection As GroupBox
+    Friend WithEvents QuickBackupBtn As Button
     Friend WithEvents CurrentPlanList_Name As DataGridViewTextBoxColumn
     Friend WithEvents CurrentPlanList_NxtBackup As DataGridViewTextBoxColumn
     Friend WithEvents CurrentPlanList_Source As DataGridViewTextBoxColumn
     Friend WithEvents CurrentPlanList_Dest As DataGridViewTextBoxColumn
     Friend WithEvents CurrentPlanList_Plan As DataGridViewTextBoxColumn
-    Friend WithEvents Label4 As Label
-    Friend WithEvents BackupNameTextBox As TextBox
-    Friend WithEvents Backup_Plan_RadioSelection As GroupBox
+    Friend WithEvents ScheduleTypeComboBox As ComboBox
+    Friend WithEvents Label3 As Label
 End Class
