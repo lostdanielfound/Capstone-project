@@ -26,8 +26,18 @@ Public Class Form1
 
     End Sub
 
+    Private Function BackupTypeToEnum(Str As String) As BackupPlan
+        If Str.ToLower() = "Full Backup".ToLower() Then
+            Return BackupPlan.FullBackup
+        ElseIf Str.ToLower() = "Incremental".ToLower() Then
+            Return BackupPlan.IncrementalBackup
+        ElseIf Str.ToLower() = "Differential".ToLower() Then
+            Return BackupPlan.DifferentialBackup
+        End If
+    End Function
+
     Public Sub SchedulePlanTask(Src As String, Dst As String, BackUpName As String, BackUpType As BackupPlan, ST As ScheduleType)
-        Dim TaskName = "BoxIT_" & BackUpName & "_"
+        Dim TaskName = "BoxIT_" & BackUpName
         Dim ScheduleT As String
         Dim cmdline As String
         Dim ExecutibleName = "Zip_Process.exe"
@@ -40,7 +50,6 @@ Public Class Form1
                 TaskName &= "DifferentialBackup"
             Case Else
         End Select
-        TaskName &= Guid.NewGuid.ToString()
 
         Select Case ST
             Case ScheduleType.Daily
@@ -56,15 +65,33 @@ Public Class Form1
             Case ScheduleType.Monthly
                 ScheduleT = "monthly"
                 cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
-                Log(cmdline)
+                Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Yearly
                 ScheduleT = "monthly"
                 cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
-                Log(cmdline)
+                Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
         End Select
 
+    End Sub
+
+    Private Sub DeletePlanTask(BackupName As String, BackupType As BackupPlan)
+        Dim TaskName = "BoxIT_" & BackupName
+        Dim cmdline As String
+        Select Case BackupType 'Append BackupType to the Task name
+            Case BackupPlan.FullBackup
+                TaskName &= "FullBackup"
+            Case BackupPlan.IncrementalBackup
+                TaskName &= "IncrementalBackup"
+            Case BackupPlan.DifferentialBackup
+                TaskName &= "DifferentialBackup"
+            Case Else
+        End Select
+
+        cmdline = "schtasks /delete /tn " & Chr(34) & TaskName & Chr(34) & " /f"
+        Log("Executing CMD scheduler command:" & cmdline)
+        Shell(cmdline)
     End Sub
 
     Private Sub PopulatePlansTable()
@@ -223,6 +250,25 @@ Public Class Form1
         ScheduleTypeChosen = (ScheduleTypeComboBox.SelectedItem.ToString() <> String.Empty)
         BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
         Log(SrcChosen.ToString() & DestChosen.ToString() & ScheduleTypeChosen.ToString() & BackupNameChosen.ToString())
+    End Sub
+
+    Private Sub CurrentPlanList_MouseDoubleClickEvent(sender As Object, e As DataGridViewCellMouseEventArgs) Handles CurrentPlanList.CellMouseDoubleClick
+        'Prompt the user on whether or not they would want to modify the backup plan of their choosing 
+        Dim PlanRowIndex = e.RowIndex
+        Dim PlanName = CurrentPlanList.Item(0, e.RowIndex).Value
+        Dim PlanBackupType = CurrentPlanList.Item(4, e.RowIndex).Value
+        Dim Response = MsgBox("Do you want to delete the following backup plan?" & vbCrLf & CurrentPlanList.Item(0, e.RowIndex).Value, vbYesNo, "Delete Backup Plan")
+
+        If Response = vbYes Then
+            'First, delete the Plan object from the Plans.json file
+            Dim jsonManipObj As JsonManip = New JsonManip()
+            jsonManipObj.SetJsonFile("Plans.json")
+            jsonManipObj.DeletePlanObject(PlanRowIndex)
+
+            'Second, discontinues backup plan task from the task scheduler
+            DeletePlanTask(PlanName, BackupTypeToEnum(PlanBackupType))
+            PopulatePlansTable() 'Populating Plans Data table'
+        End If
     End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load

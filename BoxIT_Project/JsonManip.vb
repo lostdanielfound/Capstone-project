@@ -80,6 +80,24 @@ Public Class JsonManip
         End Using
     End Sub
 
+    Public Sub DeletePlanObject(arrayIndex As Integer)
+        Dim sourceJsonArray As JArray
+
+        Using reader As New StreamReader(_JsonFilePath)
+            Dim JsonStream = reader.ReadToEnd() 'Read json file into stream
+            sourceJsonArray = JArray.Parse(JsonStream) 'Parse Array json object
+        End Using
+
+        sourceJsonArray(arrayIndex).Remove() 'Removed the PlanObject
+
+        'Writes content of Jarray back into the json file
+        Using sw As StreamWriter = File.CreateText(_JsonFilePath)
+            Using writer As New JsonTextWriter(sw)
+                sourceJsonArray.WriteTo(writer)
+            End Using
+        End Using
+    End Sub
+
     Public Sub CreateJsonFile()
         Dim CleanJson As String = "[ 
 
