@@ -34,6 +34,8 @@ Public Class Form1
         ElseIf Str.ToLower() = "Differential".ToLower() Then
             Return BackupPlan.DifferentialBackup
         End If
+
+        Return BackupPlan.None
     End Function
 
     Public Sub SchedulePlanTask(Src As String, Dst As String, BackUpName As String, BackUpType As BackupPlan, ST As ScheduleType)
