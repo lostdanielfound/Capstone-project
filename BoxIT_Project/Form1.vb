@@ -38,7 +38,7 @@ Public Class Form1
         Return BackupPlan.None
     End Function
 
-    Public Sub SchedulePlanTask(Src As String, Dst As String, BackUpName As String, BackUpType As BackupPlan, ST As ScheduleType)
+    Private Sub SchedulePlanTask(Src As String, Dst As String, BackUpName As String, BackUpType As BackupPlan, ST As ScheduleType)
         Dim TaskName = "BoxIT_" & BackUpName
         Dim ScheduleT As String
         Dim cmdline As String
@@ -97,6 +97,7 @@ Public Class Form1
     End Sub
 
     Private Sub PopulatePlansTable()
+        CurrentPlanList.Rows.Clear() 'Clear table rows to readd
         Dim jsonManipObj As JsonManip = New JsonManip()
         jsonManipObj.SetJsonFile("Plans.json")
 
@@ -225,33 +226,43 @@ Public Class Form1
 
         'Gets the current selected Radiobutton
         Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True)
-
+        Dim wroteToFile = False
         If selectedRadioButton.Text = "Full Backup" Then
-            SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.FullBackup, ScheduleTypeComboBox.SelectedIndex)
-            jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, Today.AddDays(1).ToString(), Src, Dest, BackupPlan.FullBackup)
+            wroteToFile = jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, Today.AddDays(1).ToString(), Src, Dest, BackupPlan.FullBackup)
+            If wroteToFile Then
+                SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.FullBackup, ScheduleTypeComboBox.SelectedIndex)
+            End If
         ElseIf selectedRadioButton.Text = "Incremental" Then 'TODO: Add Incremental backup features
-            SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.IncrementalBackup, ScheduleTypeComboBox.SelectedIndex)
-            jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.IncrementalBackup)
+            wroteToFile = jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.IncrementalBackup)
+            If wroteToFile Then
+                SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.IncrementalBackup, ScheduleTypeComboBox.SelectedIndex)
+            End If
         ElseIf selectedRadioButton.Text = "Differntial" Then 'TODO: Add Incremental backup features
-            SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.DifferentialBackup, ScheduleTypeComboBox.SelectedIndex)
-            jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.DifferentialBackup)
+            wroteToFile = jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.DifferentialBackup)
+            If wroteToFile Then
+                SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.DifferentialBackup, ScheduleTypeComboBox.SelectedIndex)
+            End If
         End If
 
         'Conclude Plan addition
-        MsgBox(selectedRadioButton.Text & " plan has been created!", vbOKOnly, "Backup Plan")
+        If wroteToFile Then
+            MsgBox(selectedRadioButton.Text & " plan has been created!", vbOKOnly, "Backup Plan")
+            Log("Wrote to Plans.json file succesfully")
+        Else
+            MsgBox("Failed to create Backup Plan: " & selectedRadioButton.Text, vbOKOnly, "Failed to Write")
+            Log("Failed to write Plan object to Plans.json")
+        End If
         PopulatePlansTable() 'RePopulating Plans Data table
     End Sub
 
     Private Sub BackupNameTextBox_TextChanged(sender As Object, e As EventArgs) Handles BackupNameTextBox.TextChanged
         BackupNameChosen = (BackupNameTextBox.Text <> String.Empty)
         BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
-        Log(SrcChosen.ToString() & DestChosen.ToString() & ScheduleTypeChosen.ToString() & BackupNameChosen.ToString())
     End Sub
 
     Private Sub ScheduleTypeComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ScheduleTypeComboBox.SelectedIndexChanged
         ScheduleTypeChosen = (ScheduleTypeComboBox.SelectedItem.ToString() <> String.Empty)
         BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
-        Log(SrcChosen.ToString() & DestChosen.ToString() & ScheduleTypeChosen.ToString() & BackupNameChosen.ToString())
     End Sub
 
     Private Sub CurrentPlanList_MouseDoubleClickEvent(sender As Object, e As DataGridViewCellMouseEventArgs) Handles CurrentPlanList.CellMouseDoubleClick

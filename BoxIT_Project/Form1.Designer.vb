@@ -257,10 +257,13 @@ Partial Class Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
+        AutoSize = True
         ClientSize = New Size(829, 402)
         Controls.Add(Panel1)
+        MaximizeBox = False
         Name = "Form1"
-        Text = "Form1"
+        StartPosition = FormStartPosition.CenterScreen
+        Text = "BoxIt"
         Panel1.ResumeLayout(False)
         Panel1.PerformLayout()
         Backup_Plan_RadioSelection.ResumeLayout(False)

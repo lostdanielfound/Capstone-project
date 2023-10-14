@@ -53,7 +53,14 @@ Public Class JsonManip
     ' @parameters Name As String, Nxt_backup As String, Src As String, Dst As String, BackupPlan As BackupPlan
     ' 
     ' TODO: Ensure that the user can't add a Plan of the same name 
-    Public Sub WriteToJsonFile(Name As String, Nxt_backup As String, Src As String, Dst As String, BackupPlan As BackupPlan)
+    Public Function WriteToJsonFile(Name As String, Nxt_backup As String, Src As String, Dst As String, BackupPlan As BackupPlan) As Boolean
+        Dim CurrentBackupPlans = ReadFromJsonFile()
+        For Each plan In CurrentBackupPlans 'Can't be another duplicated backup plan name
+            If plan.Name = Name Then
+                Return False
+            End If
+        Next
+
         Dim backup_plan = New Plan() With { 'Create new Plan object
             .Name = Name,
             .Nxt_backup = Nxt_backup,
@@ -78,8 +85,13 @@ Public Class JsonManip
                 sourceJsonArray.WriteTo(writer)
             End Using
         End Using
-    End Sub
 
+        Return True
+    End Function
+
+    ' DeletePlanObject()
+    ' @desc Selects the object stored within the json array at in index and removes it from the array 
+    ' @parameters arrayIndex as Integer
     Public Sub DeletePlanObject(arrayIndex As Integer)
         Dim sourceJsonArray As JArray
 
