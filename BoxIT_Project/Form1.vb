@@ -241,18 +241,20 @@ Public Class Form1
         'Gets the current selected Radiobutton
         Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True)
         Dim wroteToFile = False
-        If selectedRadioButton.Text = "Full Backup" Then 'TODO: Add Schetype to method to write correct Nxt_backup Time
+
+        'Writes to the Plans.json on new plan and schedules the backup plan
+        If selectedRadioButton.Text = "Full Backup" Then
             wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Src, Dest, BackupPlan.FullBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.FullBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
-        ElseIf selectedRadioButton.Text = "Incremental" Then 'TODO: Add Incremental backup features
-            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.IncrementalBackup)
+        ElseIf selectedRadioButton.Text = "Incremental" Then
+            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Src, Dest, BackupPlan.IncrementalBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.IncrementalBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
-        ElseIf selectedRadioButton.Text = "Differntial" Then 'TODO: Add Incremental backup features
-            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.DifferentialBackup)
+        ElseIf selectedRadioButton.Text = "Differntial" Then
+            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Src, Dest, BackupPlan.DifferentialBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.DifferentialBackup, ScheduleTypeComboBox.SelectedIndex)
             End If

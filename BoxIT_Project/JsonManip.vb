@@ -47,9 +47,13 @@ Public Class JsonManip
             sourceJsonArray = JArray.Parse(JsonStream) 'Parse Array json object
         End Using
 
+        Dim Flag = False
+        'Updates the Nxt_backup time for PlanName in Jarray
         For Each plan In sourceJsonArray
             If plan("Name") = PlanName Then
                 plan("Nxt_backup") = ScheduleDate
+                Flag = True
+                Exit For
             End If
         Next
 
@@ -59,6 +63,8 @@ Public Class JsonManip
                 sourceJsonArray.WriteTo(writer)
             End Using
         End Using
+
+        Return Flag
     End Function
 
     ' ReadPlanObjectsFromJsonFile() 
