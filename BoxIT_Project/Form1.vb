@@ -56,22 +56,22 @@ Public Class Form1
         Select Case ST
             Case ScheduleType.Daily
                 ScheduleT = "daily"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Weekly
                 ScheduleT = "weekly"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Monthly
                 ScheduleT = "monthly"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Yearly
                 ScheduleT = "monthly"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
         End Select
@@ -101,7 +101,7 @@ Public Class Form1
         Dim jsonManipObj As JsonManip = New JsonManip()
         jsonManipObj.SetJsonFile("Plans.json")
 
-        For Each plan As Plan In jsonManipObj.ReadFromJsonFile()
+        For Each plan As Plan In jsonManipObj.ReadPlanObjectsFromJsonFile()
             Dim newRow As New DataGridViewRow() 'Creating new row
 
             For index = 1 To 5 'Adding cells to row
@@ -227,18 +227,18 @@ Public Class Form1
         'Gets the current selected Radiobutton
         Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True)
         Dim wroteToFile = False
-        If selectedRadioButton.Text = "Full Backup" Then
-            wroteToFile = jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, Today.AddDays(1).ToString(), Src, Dest, BackupPlan.FullBackup)
+        If selectedRadioButton.Text = "Full Backup" Then 'TODO: Add Schetype to method to write correct Nxt_backup Time
+            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, Now.AddDays(1).ToString(), Src, Dest, BackupPlan.FullBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.FullBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
         ElseIf selectedRadioButton.Text = "Incremental" Then 'TODO: Add Incremental backup features
-            wroteToFile = jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.IncrementalBackup)
+            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.IncrementalBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.IncrementalBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
         ElseIf selectedRadioButton.Text = "Differntial" Then 'TODO: Add Incremental backup features
-            wroteToFile = jsonManipObj.WriteToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.DifferentialBackup)
+            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, "1/1/1900", Src, Dest, BackupPlan.DifferentialBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.DifferentialBackup, ScheduleTypeComboBox.SelectedIndex)
             End If

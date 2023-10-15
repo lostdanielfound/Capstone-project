@@ -20,3 +20,6 @@ C:\Users\Guzman\Desktop\Capstone-project\Zip_Process\obj\Release\Zip_Process.Res
 C:\Users\Guzman\Desktop\Capstone-project\Zip_Process\obj\Release\Zip_Process.exe
 C:\Users\Guzman\Desktop\Capstone-project\Zip_Process\obj\Release\Zip_Process.xml
 C:\Users\Guzman\Desktop\Capstone-project\Zip_Process\obj\Release\Zip_Process.pdb
+C:\Users\Guzman\Desktop\Capstone-project\Zip_Process\bin\Release\Newtonsoft.Json.dll
+C:\Users\Guzman\Desktop\Capstone-project\Zip_Process\bin\Release\Newtonsoft.Json.xml
+C:\Users\Guzman\Desktop\Capstone-project\Zip_Process\obj\Release\Zip_Process.vbproj.CopyComplete
