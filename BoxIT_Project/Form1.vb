@@ -221,14 +221,28 @@ Public Class Form1
             Return
         End If
 
+        'Creating new manipuation object to write to json array
         Dim jsonManipObj As JsonManip = New JsonManip()
         jsonManipObj.SetJsonFile("Plans.json")
+
+        Dim NextBackUpDate = ""
+        'Switch statment for to get the next scheduled backup
+        Select Case ScheduleTypeComboBox.SelectedIndex
+            Case ScheduleType.Daily
+                NextBackupDate = Now.AddDays(1).ToString()
+            Case ScheduleType.Weekly
+                NextBackUpDate = Now.AddDays(7).ToString()
+            Case ScheduleType.Monthly
+                NextBackUpDate = Now.AddMonths(1).ToString()
+            Case ScheduleType.Yearly
+                NextBackUpDate = Now.AddYears(1).ToString()
+        End Select
 
         'Gets the current selected Radiobutton
         Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True)
         Dim wroteToFile = False
         If selectedRadioButton.Text = "Full Backup" Then 'TODO: Add Schetype to method to write correct Nxt_backup Time
-            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, Now.AddDays(1).ToString(), Src, Dest, BackupPlan.FullBackup)
+            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Src, Dest, BackupPlan.FullBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.FullBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
