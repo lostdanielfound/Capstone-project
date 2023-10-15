@@ -145,7 +145,6 @@ Partial Class Form1
         ' 
         RadioButton2.AutoSize = True
         RadioButton2.BackgroundImageLayout = ImageLayout.Center
-        RadioButton2.Enabled = False
         RadioButton2.Location = New Point(15, 49)
         RadioButton2.Name = "RadioButton2"
         RadioButton2.Size = New Size(93, 22)
@@ -156,7 +155,6 @@ Partial Class Form1
         ' RadioButton3
         ' 
         RadioButton3.AutoSize = True
-        RadioButton3.Enabled = False
         RadioButton3.Location = New Point(15, 77)
         RadioButton3.Name = "RadioButton3"
         RadioButton3.Size = New Size(82, 22)

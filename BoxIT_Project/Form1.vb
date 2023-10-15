@@ -29,9 +29,9 @@ Public Class Form1
     Private Function BackupTypeToEnum(Str As String) As BackupPlan
         If Str.ToLower() = "Full Backup".ToLower() Then
             Return BackupPlan.FullBackup
-        ElseIf Str.ToLower() = "Incremental".ToLower() Then
+        ElseIf Str.ToLower() = "Incremental Backup".ToLower() Then
             Return BackupPlan.IncrementalBackup
-        ElseIf Str.ToLower() = "Differential".ToLower() Then
+        ElseIf Str.ToLower() = "Differential Backup".ToLower() Then
             Return BackupPlan.DifferentialBackup
         End If
 
@@ -56,22 +56,22 @@ Public Class Form1
         Select Case ST
             Case ScheduleType.Daily
                 ScheduleT = "daily"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Weekly
                 ScheduleT = "weekly"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Monthly
                 ScheduleT = "monthly"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Yearly
                 ScheduleT = "monthly"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & TaskName & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
         End Select
