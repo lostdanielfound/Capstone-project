@@ -1,5 +1,6 @@
 ﻿Imports System.IO.Compression
 Imports System.IO
+Imports System.Globalization
 
 Module Module1
     Sub UpdateBackUpPlans(PlanName As String, ST As Integer)
@@ -36,6 +37,33 @@ Module Module1
     End Sub
 
     Sub IncrementalBackUp(args As String())
+        Dim jsonManipObj As JsonManip = New JsonManip()
+        jsonManipObj.SetJsonFile("Plans.json")
+        Dim PlanName = args(5)
+
+        Dim Previous_backup_date = jsonManipObj.ReadPlanObject_Previous_backup(PlanName)
+        Dim timestampDateTime As Date
+        Dim enUS As New CultureInfo("en-US")
+
+        'Convert Previous_back_date string into an actually timestamp to compare
+        If Not Date.TryParseExact(Previous_backup_date, "MM/dd/yyyy hh:mm:ss tt", enUS, DateTimeStyles.None, timestampDateTime) Then
+            Console.WriteLine("Incremental Backup failed, Previous_backup_date couldn't be parse correctly, exit...")
+            Return
+        End If
+
+        ' Time to transverse the directory and files of the source and find files that have 
+        ' a modified time logical greater than the Previous_backup_date timestamp.
+        ' We first check the directories of the backup source first and then the files
+        '
+        ' Conditions: 
+        ' If a directory's creation date is greater than the timestamp, add it to the backup tree.
+        ' Else we ignore that directory and continue our search
+        '
+        ' IF we find a file that has it's modified time greater than the timestamp, we take that file and
+        ' replace the copy of that file within the backup tree with the new file.
+        ' ELSE we ignore that file and continue our search
+        '
+        ' IF 
 
     End Sub
 

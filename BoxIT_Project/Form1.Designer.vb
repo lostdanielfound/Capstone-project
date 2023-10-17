@@ -35,14 +35,15 @@ Partial Class Form1
         BackupNameTextBox = New TextBox()
         Label4 = New Label()
         CurrentPlanList = New DataGridView()
-        CurrentPlanList_Name = New DataGridViewTextBoxColumn()
-        CurrentPlanList_NxtBackup = New DataGridViewTextBoxColumn()
-        CurrentPlanList_Source = New DataGridViewTextBoxColumn()
-        CurrentPlanList_Dest = New DataGridViewTextBoxColumn()
-        CurrentPlanList_Plan = New DataGridViewTextBoxColumn()
         BackupBtn = New Button()
         Label2 = New Label()
         AddDestBtn = New Button()
+        CurrentPlanList_Name = New DataGridViewTextBoxColumn()
+        CurrentPlanList_NxtBackup = New DataGridViewTextBoxColumn()
+        CurrentPlanList_PreviousBackup = New DataGridViewTextBoxColumn()
+        CurrentPlanList_Source = New DataGridViewTextBoxColumn()
+        CurrentPlanList_Dest = New DataGridViewTextBoxColumn()
+        CurrentPlanList_Plan = New DataGridViewTextBoxColumn()
         Panel1.SuspendLayout()
         Backup_Plan_RadioSelection.SuspendLayout()
         CType(CurrentPlanList, ComponentModel.ISupportInitialize).BeginInit()
@@ -84,7 +85,7 @@ Partial Class Form1
         Panel1.Font = New Font("Quicksand", 9F, FontStyle.Regular, GraphicsUnit.Point)
         Panel1.Location = New Point(12, 12)
         Panel1.Name = "Panel1"
-        Panel1.Size = New Size(803, 383)
+        Panel1.Size = New Size(901, 383)
         Panel1.TabIndex = 2
         ' 
         ' Label3
@@ -109,7 +110,7 @@ Partial Class Form1
         ' QuickBackupBtn
         ' 
         QuickBackupBtn.Enabled = False
-        QuickBackupBtn.Location = New Point(658, 110)
+        QuickBackupBtn.Location = New Point(758, 110)
         QuickBackupBtn.Name = "QuickBackupBtn"
         QuickBackupBtn.Size = New Size(139, 31)
         QuickBackupBtn.TabIndex = 13
@@ -181,50 +182,17 @@ Partial Class Form1
         ' CurrentPlanList
         ' 
         CurrentPlanList.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        CurrentPlanList.Columns.AddRange(New DataGridViewColumn() {CurrentPlanList_Name, CurrentPlanList_NxtBackup, CurrentPlanList_Source, CurrentPlanList_Dest, CurrentPlanList_Plan})
+        CurrentPlanList.Columns.AddRange(New DataGridViewColumn() {CurrentPlanList_Name, CurrentPlanList_NxtBackup, CurrentPlanList_PreviousBackup, CurrentPlanList_Source, CurrentPlanList_Dest, CurrentPlanList_Plan})
         CurrentPlanList.Location = New Point(3, 184)
         CurrentPlanList.Name = "CurrentPlanList"
         CurrentPlanList.RowTemplate.Height = 25
-        CurrentPlanList.Size = New Size(794, 190)
+        CurrentPlanList.Size = New Size(894, 190)
         CurrentPlanList.TabIndex = 9
-        ' 
-        ' CurrentPlanList_Name
-        ' 
-        CurrentPlanList_Name.HeaderText = "Name"
-        CurrentPlanList_Name.Name = "CurrentPlanList_Name"
-        CurrentPlanList_Name.ReadOnly = True
-        CurrentPlanList_Name.Width = 150
-        ' 
-        ' CurrentPlanList_NxtBackup
-        ' 
-        CurrentPlanList_NxtBackup.HeaderText = "Next Backup"
-        CurrentPlanList_NxtBackup.Name = "CurrentPlanList_NxtBackup"
-        CurrentPlanList_NxtBackup.ReadOnly = True
-        ' 
-        ' CurrentPlanList_Source
-        ' 
-        CurrentPlanList_Source.HeaderText = "Source"
-        CurrentPlanList_Source.Name = "CurrentPlanList_Source"
-        CurrentPlanList_Source.ReadOnly = True
-        CurrentPlanList_Source.Width = 200
-        ' 
-        ' CurrentPlanList_Dest
-        ' 
-        CurrentPlanList_Dest.HeaderText = "Destination"
-        CurrentPlanList_Dest.Name = "CurrentPlanList_Dest"
-        CurrentPlanList_Dest.ReadOnly = True
-        CurrentPlanList_Dest.Width = 200
-        ' 
-        ' CurrentPlanList_Plan
-        ' 
-        CurrentPlanList_Plan.HeaderText = "Plan"
-        CurrentPlanList_Plan.Name = "CurrentPlanList_Plan"
-        CurrentPlanList_Plan.ReadOnly = True
         ' 
         ' BackupBtn
         ' 
         BackupBtn.Enabled = False
-        BackupBtn.Location = New Point(658, 147)
+        BackupBtn.Location = New Point(758, 147)
         BackupBtn.Name = "BackupBtn"
         BackupBtn.Size = New Size(139, 31)
         BackupBtn.TabIndex = 4
@@ -251,12 +219,51 @@ Partial Class Form1
         AddDestBtn.Text = "+ Add Destination"
         AddDestBtn.UseVisualStyleBackColor = True
         ' 
+        ' CurrentPlanList_Name
+        ' 
+        CurrentPlanList_Name.HeaderText = "Name"
+        CurrentPlanList_Name.Name = "CurrentPlanList_Name"
+        CurrentPlanList_Name.ReadOnly = True
+        CurrentPlanList_Name.Width = 150
+        ' 
+        ' CurrentPlanList_NxtBackup
+        ' 
+        CurrentPlanList_NxtBackup.HeaderText = "Next Backup"
+        CurrentPlanList_NxtBackup.Name = "CurrentPlanList_NxtBackup"
+        CurrentPlanList_NxtBackup.ReadOnly = True
+        ' 
+        ' CurrentPlanList_PreviousBackup
+        ' 
+        CurrentPlanList_PreviousBackup.HeaderText = "Previous Backup"
+        CurrentPlanList_PreviousBackup.Name = "CurrentPlanList_PreviousBackup"
+        CurrentPlanList_PreviousBackup.ReadOnly = True
+        ' 
+        ' CurrentPlanList_Source
+        ' 
+        CurrentPlanList_Source.HeaderText = "Source"
+        CurrentPlanList_Source.Name = "CurrentPlanList_Source"
+        CurrentPlanList_Source.ReadOnly = True
+        CurrentPlanList_Source.Width = 200
+        ' 
+        ' CurrentPlanList_Dest
+        ' 
+        CurrentPlanList_Dest.HeaderText = "Destination"
+        CurrentPlanList_Dest.Name = "CurrentPlanList_Dest"
+        CurrentPlanList_Dest.ReadOnly = True
+        CurrentPlanList_Dest.Width = 200
+        ' 
+        ' CurrentPlanList_Plan
+        ' 
+        CurrentPlanList_Plan.HeaderText = "Plan"
+        CurrentPlanList_Plan.Name = "CurrentPlanList_Plan"
+        CurrentPlanList_Plan.ReadOnly = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         AutoSize = True
-        ClientSize = New Size(829, 402)
+        ClientSize = New Size(923, 402)
         Controls.Add(Panel1)
         MaximizeBox = False
         Name = "Form1"
@@ -284,11 +291,12 @@ Partial Class Form1
     Friend WithEvents BackupNameTextBox As TextBox
     Friend WithEvents Backup_Plan_RadioSelection As GroupBox
     Friend WithEvents QuickBackupBtn As Button
+    Friend WithEvents ScheduleTypeComboBox As ComboBox
+    Friend WithEvents Label3 As Label
     Friend WithEvents CurrentPlanList_Name As DataGridViewTextBoxColumn
     Friend WithEvents CurrentPlanList_NxtBackup As DataGridViewTextBoxColumn
+    Friend WithEvents CurrentPlanList_PreviousBackup As DataGridViewTextBoxColumn
     Friend WithEvents CurrentPlanList_Source As DataGridViewTextBoxColumn
     Friend WithEvents CurrentPlanList_Dest As DataGridViewTextBoxColumn
     Friend WithEvents CurrentPlanList_Plan As DataGridViewTextBoxColumn
-    Friend WithEvents ScheduleTypeComboBox As ComboBox
-    Friend WithEvents Label3 As Label
 End Class

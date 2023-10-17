@@ -67,6 +67,24 @@ Public Class JsonManip
         Return Flag
     End Function
 
+    Public Function ReadPlanObject_Previous_backup(PlanName As String) As String
+        Dim sourceJsonArray As JArray
+
+        Using reader As New StreamReader(_JsonFilePath)
+            Dim JsonStream = reader.ReadToEnd() 'Read json file into stream
+            sourceJsonArray = JArray.Parse(JsonStream) 'Parse Array json object
+        End Using
+
+        'Transverse until we find the jtoken with the Plan name
+        For Each Plan In sourceJsonArray
+            If Plan("Name") = PlanName Then
+                Return Plan("Previous_backup")
+            End If
+        Next
+
+        Return String.Empty
+    End Function
+
     ' ReadPlanObjectsFromJsonFile() 
     ' @desc Reads from the Plans.json and returns back a list of current
     ' active backup plans 
@@ -86,7 +104,7 @@ Public Class JsonManip
     ' WritePlanObjectToJsonFile()
     ' @desc Writes a new Plan Json object into the Plans.json file.
     ' @parameters Name As String, Nxt_backup As String, Src As String, Dst As String, BackupPlan As BackupPlan
-    Public Function WritePlanObjectToJsonFile(Name As String, Nxt_backup As String, Src As String, Dst As String, BackupPlan As BackupPlan) As Boolean
+    Public Function WritePlanObjectToJsonFile(Name As String, Nxt_backup As String, Previous_backup As String, Src As String, Dst As String, BackupPlan As BackupPlan) As Boolean
         Dim CurrentBackupPlans = ReadPlanObjectsFromJsonFile()
         For Each plan In CurrentBackupPlans 'Can't be another duplicated backup plan name
             If plan.Name = Name Then
@@ -97,6 +115,7 @@ Public Class JsonManip
         Dim backup_plan = New Plan() With { 'Create new Plan object
             .Name = Name,
             .Nxt_backup = Nxt_backup,
+            .Previous_backup = Previous_backup,
             .Src = Src,
             .Dst = Dst,
             .backupPlan = BackupPlan

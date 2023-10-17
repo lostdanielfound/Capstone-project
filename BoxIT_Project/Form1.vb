@@ -104,24 +104,25 @@ Public Class Form1
         For Each plan As Plan In jsonManipObj.ReadPlanObjectsFromJsonFile()
             Dim newRow As New DataGridViewRow() 'Creating new row
 
-            For index = 1 To 5 'Adding cells to row
+            For index = 1 To 6 'Adding cells to row
                 newRow.Cells.Add(New DataGridViewTextBoxCell())
             Next
 
             'populate cells
             newRow.Cells(0).Value = plan.Name
             newRow.Cells(1).Value = plan.Nxt_backup
-            newRow.Cells(2).Value = plan.Src
-            newRow.Cells(3).Value = plan.Dst
+            newRow.Cells(2).Value = plan.Previous_backup
+            newRow.Cells(3).Value = plan.Src
+            newRow.Cells(4).Value = plan.Dst
             Select Case plan.backupPlan
                 Case BackupPlan.FullBackup
-                    newRow.Cells(4).Value = "Full Backup"
+                    newRow.Cells(5).Value = "Full Backup"
                 Case BackupPlan.IncrementalBackup
-                    newRow.Cells(4).Value = "Incremental Backup"
+                    newRow.Cells(5).Value = "Incremental Backup"
                 Case BackupPlan.DifferentialBackup
-                    newRow.Cells(4).Value = "Differential Backup"
+                    newRow.Cells(5).Value = "Differential Backup"
                 Case Else
-                    newRow.Cells(4).Value = "None"
+                    newRow.Cells(5).Value = "None"
             End Select
 
             CurrentPlanList.Rows.Add(newRow) 'Add the row to the current list
@@ -243,18 +244,19 @@ Public Class Form1
         Dim wroteToFile = False
 
         'Writes to the Plans.json on new plan and schedules the backup plan
+        'TODO: For any setup backup plan, perform a fullback at the start.
         If selectedRadioButton.Text = "Full Backup" Then
-            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Src, Dest, BackupPlan.FullBackup)
+            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Now, Src, Dest, BackupPlan.FullBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.FullBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
         ElseIf selectedRadioButton.Text = "Incremental" Then
-            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Src, Dest, BackupPlan.IncrementalBackup)
+            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Now, Src, Dest, BackupPlan.IncrementalBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.IncrementalBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
         ElseIf selectedRadioButton.Text = "Differntial" Then
-            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Src, Dest, BackupPlan.DifferentialBackup)
+            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Now, Src, Dest, BackupPlan.DifferentialBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.DifferentialBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
