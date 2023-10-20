@@ -41,38 +41,64 @@ Public Class JsonManip
         End If
     End Sub
 
+    ' =============================
+    ' Auxiluary functions
+    ' =============================
+
+    Public Function ReadJarray() As JArray
+        If _JsonFilePath = String.Empty Then
+            Throw New JsonException()
+        End If
+
+        Dim sourceJsonArray As JArray
+
+        Using reader As New StreamReader(_JsonFilePath)
+            Dim JsonStream = reader.ReadToEnd() 'Read json file into stream
+            sourceJsonArray = JArray.Parse(JsonStream) 'Parse Array json object
+        End Using
+
+        Return sourceJsonArray
+    End Function
 
     ' =============================
     ' Methods Involving .BoxITLog.json
     ' =============================
 
-    Public Function DepthFirstTransversal(Path As String, UpdateTime As String) As JArray
+    Public Function DepthFirstTransversal(Path As String) As JArray
         Dim JsonTree = New JArray() 'Start of the JsonTree
 
         For Each subDirectoryPath As String In Directory.GetDirectories(Path)
             'Things before transversing in other subdirectories
             Dim DirectoryObject As New DirectoryInfo(subDirectoryPath)
             Dim DirectoryName = DirectoryObject.Name
+            Dim DirectoryCreation_time = DirectoryObject.CreationTime().ToString()
+
             Dim JsonDirectoryObject = New TreeObject() With {
                 .Name = DirectoryName,
                 .Files = New List(Of TreeObject),
                 .Type = "Directory",
-                .UpdateTime = UpdateTime
+                .UpdateTime = DirectoryCreation_time
             }
 
             'Continue making the subdirectory portion of the JsonTree
-            JsonDirectoryObject.Files = DepthFirstTransversalVisit(subDirectoryPath, UpdateTime) 'Add the Files to the Directory object
+            JsonDirectoryObject.Files = DepthFirstTransversalVisit(subDirectoryPath) 'Add the Files to the Directory object
             JsonTree.Add(JObject.Parse(JsonConvert.SerializeObject(JsonDirectoryObject))) 'Add the new Json serialized object to the JsonTree
         Next
 
         For Each filePath As String In Directory.GetFiles(Path)
             Dim FileObject As New FileInfo(filePath)
             Dim FileName = FileObject.Name
+            Dim FileModification_time = File.GetLastWriteTime(filePath).ToString()
+
+            If FileName = ".BoxITLog.json" Then 'Ensure that the log file doesn't get included
+                Continue For
+            End If
+
             Dim JsonFileObject = New TreeObject() With {
                 .Name = FileName,
                 .Files = New List(Of TreeObject),
                 .Type = "File",
-                .UpdateTime = UpdateTime
+                .UpdateTime = FileModification_time
             }
 
             JsonTree.Add(JObject.Parse(JsonConvert.SerializeObject(JsonFileObject)))
@@ -81,21 +107,23 @@ Public Class JsonManip
         Return JsonTree
     End Function
 
-    Public Function DepthFirstTransversalVisit(Path As String, UpdateTime As String) As List(Of TreeObject)
+    Public Function DepthFirstTransversalVisit(Path As String) As List(Of TreeObject)
         Dim JsonList = New List(Of TreeObject)
 
         'Continue to transferse through all the subdirectories until leaf is reached
         For Each subDirectoryPath As String In Directory.GetDirectories(Path)
             Dim DirectoryObject As New DirectoryInfo(subDirectoryPath)
             Dim DirectoryName = DirectoryObject.Name
+            Dim DirectoryCreation_Time = DirectoryObject.CreationTime.ToString()
+
             Dim JsonDirectoryObject = New TreeObject() With {
                 .Name = DirectoryName,
                 .Files = New List(Of TreeObject),
                 .Type = "Directory",
-                .UpdateTime = UpdateTime
+                .UpdateTime = DirectoryCreation_Time
             }
 
-            JsonDirectoryObject.Files = DepthFirstTransversalVisit(subDirectoryPath, UpdateTime)
+            JsonDirectoryObject.Files = DepthFirstTransversalVisit(subDirectoryPath)
             JsonList.Add(JsonDirectoryObject)
         Next
 
@@ -103,11 +131,13 @@ Public Class JsonManip
         For Each filePath As String In Directory.GetFiles(Path)
             Dim FileObject As New FileInfo(filePath)
             Dim FileName = FileObject.Name
+            Dim FileModification_Time = File.GetLastWriteTime(filePath)
+
             Dim JsonFileObject = New TreeObject() With {
                 .Name = FileName,
                 .Files = New List(Of TreeObject),
                 .Type = "File",
-                .UpdateTime = UpdateTime
+                .UpdateTime = FileModification_Time
             }
 
             JsonList.Add(JsonFileObject)
@@ -118,10 +148,10 @@ Public Class JsonManip
 
     ' Uses a form of DFS to create a JSON list that represents the File structure 
     ' of the Src directory 
-    Public Sub JsonTreeCreation(UpdateDate As String)
+    Public Sub JsonTreeCreation()
         ' Perform a DFS on all directories within the root
         ' Once at a "leaf", collect all files within that leaf directory and backtrack
-        Dim JsonTree = DepthFirstTransversal(Directory.GetParent(_JsonFilePath).FullName, UpdateDate)
+        Dim JsonTree = DepthFirstTransversal(Directory.GetParent(_JsonFilePath).FullName)
 
         Using sw As StreamWriter = File.CreateText(_JsonFilePath)
             Using writer As New JsonTextWriter(sw)
@@ -278,9 +308,7 @@ Public Class JsonManip
     End Sub
 
     Public Sub CreateJsonFile()
-        Dim CleanJson As String = "[ 
-
-        ]"
+        Dim CleanJson As String = "[]"
 
         Using writer As New StreamWriter(_JsonFilePath)
             writer.Write(CleanJson)

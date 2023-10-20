@@ -246,16 +246,29 @@ Public Class Form1
         'Writes to the Plans.json on new plan and schedules the backup plan
         'TODO: For any setup backup plan, perform a fullback at the start.
         If selectedRadioButton.Text = "Full Backup" Then
+            'Schedule Backup task
             wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Now, Src, Dest, BackupPlan.FullBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.FullBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
         ElseIf selectedRadioButton.Text = "Incremental" Then
+            'Creating Logfile
+            Dim logCreation As New JsonManip()
+            logCreation.SetJsonFile(Src & "\.BoxITLog.json")
+            logCreation.JsonTreeCreation()
+
+            'Scheduling backup task
             wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Now, Src, Dest, BackupPlan.IncrementalBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.IncrementalBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
         ElseIf selectedRadioButton.Text = "Differntial" Then
+            'Creating Logfile
+            Dim logCreation As New JsonManip()
+            logCreation.SetJsonFile(Src & "\.BoxITLog.json")
+            logCreation.JsonTreeCreation()
+
+            'Scheduling backup task
             wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Now, Src, Dest, BackupPlan.DifferentialBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.DifferentialBackup, ScheduleTypeComboBox.SelectedIndex)

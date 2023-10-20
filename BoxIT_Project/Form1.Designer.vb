@@ -35,15 +35,15 @@ Partial Class Form1
         BackupNameTextBox = New TextBox()
         Label4 = New Label()
         CurrentPlanList = New DataGridView()
-        BackupBtn = New Button()
-        Label2 = New Label()
-        AddDestBtn = New Button()
         CurrentPlanList_Name = New DataGridViewTextBoxColumn()
         CurrentPlanList_NxtBackup = New DataGridViewTextBoxColumn()
         CurrentPlanList_PreviousBackup = New DataGridViewTextBoxColumn()
         CurrentPlanList_Source = New DataGridViewTextBoxColumn()
         CurrentPlanList_Dest = New DataGridViewTextBoxColumn()
         CurrentPlanList_Plan = New DataGridViewTextBoxColumn()
+        BackupBtn = New Button()
+        Label2 = New Label()
+        AddDestBtn = New Button()
         Panel1.SuspendLayout()
         Backup_Plan_RadioSelection.SuspendLayout()
         CType(CurrentPlanList, ComponentModel.ISupportInitialize).BeginInit()
@@ -189,36 +189,6 @@ Partial Class Form1
         CurrentPlanList.Size = New Size(894, 190)
         CurrentPlanList.TabIndex = 9
         ' 
-        ' BackupBtn
-        ' 
-        BackupBtn.Enabled = False
-        BackupBtn.Location = New Point(758, 147)
-        BackupBtn.Name = "BackupBtn"
-        BackupBtn.Size = New Size(139, 31)
-        BackupBtn.TabIndex = 4
-        BackupBtn.Text = "Start Backup Plan"
-        BackupBtn.UseVisualStyleBackColor = True
-        ' 
-        ' Label2
-        ' 
-        Label2.AutoSize = True
-        Label2.Font = New Font("Quicksand", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        Label2.Location = New Point(133, 37)
-        Label2.Name = "Label2"
-        Label2.Size = New Size(158, 18)
-        Label2.TabIndex = 3
-        Label2.Text = "Please select a Destination"
-        ' 
-        ' AddDestBtn
-        ' 
-        AddDestBtn.Enabled = False
-        AddDestBtn.Location = New Point(3, 32)
-        AddDestBtn.Name = "AddDestBtn"
-        AddDestBtn.Size = New Size(124, 23)
-        AddDestBtn.TabIndex = 2
-        AddDestBtn.Text = "+ Add Destination"
-        AddDestBtn.UseVisualStyleBackColor = True
-        ' 
         ' CurrentPlanList_Name
         ' 
         CurrentPlanList_Name.HeaderText = "Name"
@@ -258,6 +228,36 @@ Partial Class Form1
         CurrentPlanList_Plan.Name = "CurrentPlanList_Plan"
         CurrentPlanList_Plan.ReadOnly = True
         ' 
+        ' BackupBtn
+        ' 
+        BackupBtn.Enabled = False
+        BackupBtn.Location = New Point(758, 147)
+        BackupBtn.Name = "BackupBtn"
+        BackupBtn.Size = New Size(139, 31)
+        BackupBtn.TabIndex = 4
+        BackupBtn.Text = "Start Backup Plan"
+        BackupBtn.UseVisualStyleBackColor = True
+        ' 
+        ' Label2
+        ' 
+        Label2.AutoSize = True
+        Label2.Font = New Font("Quicksand", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label2.Location = New Point(133, 37)
+        Label2.Name = "Label2"
+        Label2.Size = New Size(158, 18)
+        Label2.TabIndex = 3
+        Label2.Text = "Please select a Destination"
+        ' 
+        ' AddDestBtn
+        ' 
+        AddDestBtn.Enabled = False
+        AddDestBtn.Location = New Point(3, 32)
+        AddDestBtn.Name = "AddDestBtn"
+        AddDestBtn.Size = New Size(124, 23)
+        AddDestBtn.TabIndex = 2
+        AddDestBtn.Text = "+ Add Destination"
+        AddDestBtn.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
@@ -265,6 +265,7 @@ Partial Class Form1
         AutoSize = True
         ClientSize = New Size(923, 402)
         Controls.Add(Panel1)
+        FormBorderStyle = FormBorderStyle.FixedDialog
         MaximizeBox = False
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen

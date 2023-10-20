@@ -98,6 +98,7 @@
     </Compile>
     <Compile Include="Plan.vb" />
     <Compile Include="ScheduleType.vb" />
+    <Compile Include="TreeObject.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">

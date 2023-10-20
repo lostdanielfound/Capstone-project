@@ -1,6 +1,8 @@
 ﻿Imports System.IO.Compression
 Imports System.IO
 Imports System.Globalization
+Imports Newtonsoft.Json
+Imports Newtonsoft.Json.Linq
 
 Module Module1
     Sub UpdateBackUpPlans(PlanName As String, ST As Integer)
@@ -37,11 +39,11 @@ Module Module1
     End Sub
 
     Sub IncrementalBackUp(args As String())
-        Dim jsonManipObj As JsonManip = New JsonManip()
-        jsonManipObj.SetJsonFile("Plans.json")
+        Dim PlansManipObj As New JsonManip()
+        PlansManipObj.SetJsonFile("Plans.json")
         Dim PlanName = args(5)
 
-        Dim Previous_backup_date = jsonManipObj.ReadPlanObject_Previous_backup(PlanName)
+        Dim Previous_backup_date = PlansManipObj.ReadPlanObject_Previous_backup(PlanName) 'Kind of terrible since it's O(n) but get the job done
         Dim timestampDateTime As Date
         Dim enUS As New CultureInfo("en-US")
 
@@ -50,6 +52,13 @@ Module Module1
             Console.WriteLine("Incremental Backup failed, Previous_backup_date couldn't be parse correctly, exit...")
             Return
         End If
+
+        Dim LogManipObj As New JsonManip()
+        Dim LogPath = args(1) & "\.BoxITLog.json"
+        LogManipObj.SetJsonFile(LogPath)
+
+        Dim CurrentDirectoryTree = LogManipObj.DepthFirstTransversal(LogPath)
+        Dim LogTree = LogManipObj.ReadJarray()
 
         ' Time to transverse the directory and files of the source and find files that have 
         ' a modified time logical greater than the Previous_backup_date timestamp.
@@ -65,6 +74,8 @@ Module Module1
         '
         ' IF 
 
+        'REMEMBER TO SET PREVIOUS BACKUP TIME TO NOW
+
     End Sub
 
     Sub DifferentialBackUp(args As String())
@@ -74,11 +85,11 @@ Module Module1
     Sub Main()
         ' Program will be recieving the following arguments, 
         ' Arguments are avilable through the args array as 0-index
-        ' Src
-        ' Dst
-        ' ScheduleT
-        ' BackUpType
-        ' BackUpName
+        ' Src = 1
+        ' Dst = 2
+        ' ScheduleT = 3
+        ' BackUpType = 4
+        ' BackUpName = 5
         '
         ' The file that is output should be the following format: 
         ' [Name of backup]_Backup(counter)
