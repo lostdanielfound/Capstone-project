@@ -308,9 +308,7 @@ Public Class JsonManip
     End Sub
 
     Public Sub CreateJsonFile()
-        Dim CleanJson As String = "[ 
-
-        ]"
+        Dim CleanJson As String = "[]"
 
         Using writer As New StreamWriter(_JsonFilePath)
             writer.Write(CleanJson)

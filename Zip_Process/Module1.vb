@@ -42,6 +42,7 @@ Module Module1
         Dim PlansManipObj As New JsonManip()
         PlansManipObj.SetJsonFile("Plans.json")
         Dim PlanName = args(5)
+        Dim FullPath = args(1)
 
         Dim Previous_backup_date = PlansManipObj.ReadPlanObject_Previous_backup(PlanName) 'Kind of terrible since it's O(n) but get the job done
         Dim timestampDateTime As Date
@@ -54,27 +55,152 @@ Module Module1
         End If
 
         Dim LogManipObj As New JsonManip()
-        Dim LogPath = args(1) & "\.BoxITLog.json"
+        Dim LogPath = FullPath & "\.BoxITLog.json"
         LogManipObj.SetJsonFile(LogPath)
 
         Dim CurrentDirectoryTree = LogManipObj.DepthFirstTransversal(LogPath)
         Dim LogTree = LogManipObj.ReadJarray()
 
-        ' Time to transverse the directory and files of the source and find files that have 
-        ' a modified time logical greater than the Previous_backup_date timestamp.
-        ' We first check the directories of the backup source first and then the files
-        '
-        ' Conditions: 
-        ' If a directory's creation date is greater than the timestamp, add it to the backup tree.
-        ' Else we ignore that directory and continue our search
-        '
-        ' IF we find a file that has it's modified time greater than the timestamp, we take that file and
-        ' replace the copy of that file within the backup tree with the new file.
-        ' ELSE we ignore that file and continue our search
-        '
-        ' IF 
+        'Remove Source Entries
 
-        'REMEMBER TO SET PREVIOUS BACKUP TIME TO NOW
+        'This routine is meant to remove all treeobject entries from the JSON Log tree that don't exist within the Source backup directory (While also removing these entries from the actual Destination backup directory). From this, we wouldn't need to worry about Files or folders that aren't being tracked anymore, since there are deleted, this also relives the issues that would arise if we attempt to enter within a directory that doesn't exist. j
+        'Update Destination Entries
+
+        'This one is a little tricky, this routine is meant to transverse through the Source backup directory and compare the timestamps of each treeobject to determine if they have been updated / created. 
+
+        'IF they have been updated, update the timestamp of that treeobject within the Logtree And update that file within the Destination backup directory. 
+        'IF a treeobject that we found doesn't exist within the Logtree, then we add the treeobject to the Logtree (At the correct location of course) and add it's contents within the Destination backup directory. 
+
+        'Remove all entries that don't exist within the source directory tree
+        DeleteSrcEntires(LogTree, FullPath)
+
+        'Goes through all the files within the tree and and file / folder that is greater
+        'timestamp than the previous backup timestamp, it will be updated within the backup destination folder
+        UpdateDstEntries(LogTree, CurrentDirectoryTree, timestampDateTime)
+
+    End Sub
+
+    Sub DeleteSrcEntires(ByRef LogTree As JArray, SrcPath As String)
+        'Find which entries are a subdirectory and transverse through it first
+
+        'Look through files and directories at the root within the logtree and remove
+        'the ones that don't exist within the source.
+        For Each TreeObject As JToken In LogTree.Children()
+            If Not File.Exists(SrcPath & "\" & TreeObject("Name").ToString()) Then
+                'Remove the treeObject from the destination backup and LogTree
+                RemoveArchiveEntry(TreeObject("Name").ToString())
+                TreeObject.Remove()
+            End If
+        Next
+
+        'Now transverse through the directories that still exist within the source. 
+        For Each TreeObject As JToken In LogTree.Children()
+            If TreeObject("Type").ToString() = "Directory" Then
+                DeleteSrcEntriesVisit(TreeObject, SrcPath & "\" & TreeObject("Name").ToString(), TreeObject("Name").ToString())
+            End If
+        Next
+    End Sub
+
+    Sub DeleteSrcEntriesVisit(ByRef Subdirectory As JToken, SrcPath As String, DstPath As String)
+        'Remove the files and directories within this subdirectory that don't exist within the source
+        For Each TreeObject As JToken In Subdirectory.Children()("Files")("Value").Children()
+            If Not File.Exists(SrcPath & "\" & TreeObject("Name").ToString()) Then
+                'Remove TreeObject from destination backup and LogTree
+                RemoveArchiveEntry(DstPath & "\" & TreeObject("Name").ToString())
+                TreeObject.Remove()
+            End If
+        Next
+
+        For Each TreeObject As JToken In Subdirectory.Children()("Files")("Value").Children()
+            If TreeObject("Type").ToString() = "Directory" Then
+                DeleteSrcEntriesVisit(TreeObject, SrcPath & "\" & TreeObject("Name").ToString(), TreeObject("Name").ToString())
+            End If
+        Next
+    End Sub
+
+    Sub UpdateDstEntries(LogTree As JArray, CurrectDirectoryTree As JArray, TimestampDateTime As Date)
+        'Go through the treeobjects within sourcetree and update the ones where 
+        'Their UpdateTime is > TimestampDateTime
+        For Each TreeObject As JToken In CurrectDirectoryTree.Children()
+            Dim TreeObjectTimeStamp As Date
+            Dim enUS As New CultureInfo("en-US")
+
+            'Convert the treeObjectTimestamp string into an actually Date to compare
+            If Not Date.TryParseExact(TreeObject("UpdateTime").ToString(), "MM/dd/yyyy hh:mm:ss tt", enUS, DateTimeStyles.None, TreeObjectTimeStamp) Then
+                Console.WriteLine("Failed to convert string to Date, failure occurred in UpdateDstEntries")
+                Return
+            End If
+
+            If TreeObjectTimeStamp > TimestampDateTime Then
+                'IF the treeobject already exist within the log, update it (will only be files)
+                'IF not then add it (can be files and directories) 
+                If TreeObject("Type").ToString() = "Directory" Then 'Add new directory into DstBackup and update log
+                    'Adding Directory into Dstbackup
+                    '---
+
+                    'Add directory and it's treeobject in log
+                    '---
+
+                Else 'Update file in DstBackup and update log timestamp
+
+                End If
+            End If
+        Next
+
+        'Go through directory treeobjects and update it's treeobject
+        'LOGTREE MUST BE UPDATED WITH NEW ANY NEW DIRECTORY BEFORE CONTINUING
+        Dim idx = 0
+        For Each TreeObject As JToken In CurrectDirectoryTree.Children()
+            If TreeObject("Type").ToString() = "Directory" Then
+                UpdateDstEntriesVisit(LogTree(idx), TreeObject, TimestampDateTime)
+            End If
+            idx = idx + 1
+        Next
+    End Sub
+
+    Sub UpdateDstEntriesVisit(LogTree As JToken, CurrentDirectoryTree As JToken, TimestampDateTime As Date)
+        For Each TreeObject As JToken In CurrentDirectoryTree.Children()("Files")("Value").Children()
+            Dim TreeObjectTimeStamp As Date
+            Dim enUS As New CultureInfo("en-US")
+
+            'Convert the treeObjectTimestamp string into an actually Date to compare
+            If Not Date.TryParseExact(TreeObject("UpdateTime").ToString(), "MM/dd/yyyy hh:mm:ss tt", enUS, DateTimeStyles.None, TreeObjectTimeStamp) Then
+                Console.WriteLine("Failed to convert string to Date, failure occurred in UpdateDstEntries")
+                Return
+            End If
+
+            If TreeObjectTimeStamp > TimestampDateTime Then
+                'IF the treeobject already exist within the log, update it (will only be files)
+                'IF not then add it (can be files and directories) 
+                If TreeObject("Type").ToString() = "Directory" Then 'Add new directory into DstBackup and update log
+                    'Adding Directory into Dstbackup
+                    '---
+
+                    'Add directory and it's treeobject in log
+                    '---
+
+                Else 'Update file in DstBackup and update log timestamp
+
+                End If
+            End If
+        Next
+
+        'Go through directory treeobjects and update it's treeobject
+        'LOGTREE MUST BE UPDATED WITH NEW ANY NEW DIRECTORY BEFORE CONTINUING
+        Dim idx = 0
+        For Each TreeObject As JToken In CurrentDirectoryTree.Children()("Files")("Value").Children()
+            If TreeObject("Type").ToString() = "Directory" Then
+                UpdateDstEntriesVisit(LogTree.Children()("Files")("Value").Children()(idx), TreeObject, TimestampDateTime)
+            End If
+            idx = idx + 1
+        Next
+    End Sub
+
+    Sub UpdateLogEntry()
+
+    End Sub
+
+    Sub RemoveArchiveEntry(PathName As String)
 
     End Sub
 
