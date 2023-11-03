@@ -103,3 +103,4 @@ C:\Users\Guzman\Desktop\Capstone-project\TestingEnvironment\obj\Debug\net6.0-win
 C:\Users\Guzman\Desktop\Capstone-project\TestingEnvironment\obj\Debug\net6.0-windows\TestingEnvironment.pdb
 C:\Users\Guzman\Desktop\Capstone-project\TestingEnvironment\obj\Debug\net6.0-windows\TestingEnvironment.genruntimeconfig.cache
 C:\Users\Guzman\Desktop\Capstone-project\TestingEnvironment\obj\Debug\net6.0-windows\ref\TestingEnvironment.dll
+C:\Users\Guzman\Desktop\Capstone-project\TestingEnvironment\bin\Debug\net6.0-windows\DotNetZip.dll
