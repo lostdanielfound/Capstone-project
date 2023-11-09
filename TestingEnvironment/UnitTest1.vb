@@ -1,11 +1,11 @@
-Imports NUnit.Framework
+Imports System.Globalization
 Imports System.IO
-Imports BoxIT_Project
-Imports Newtonsoft.Json.Linq
 Imports System.IO.Compression
+Imports BoxIT_Project
 Imports Ionic
 Imports Newtonsoft.Json
-Imports System.Globalization
+Imports Newtonsoft.Json.Linq
+Imports NUnit.Framework
 
 Namespace TestingEnvironment
 
@@ -58,30 +58,55 @@ Namespace TestingEnvironment
 
         <Test>
         Public Sub IncrementalUpdateProcess_StateTest()
-            JsonManipLogObj.SetJsonFile("C:\Users\Guzman\Desktop\411-Project2\.BoxITLog.json", JsonManip.JsonFileType.Log)
+            Dim LogPath = "C:\Users\Guzman\Desktop\Incremental_Testcases\Simple\.BoxITLog.json"
+            Dim SrcPath = "C:\Users\Guzman\Desktop\Incremental_Testcases\Simple"
+            Dim ZipDestinationPath = "C:\Users\Guzman\Desktop\Destination\Project.zip"
+            JsonManipLogObj.SetJsonFile(LogPath, JsonManip.JsonFileType.Log)
             Dim LogTree = JsonManipLogObj.ReadJarray()
-            Dim CurrentDirectoryTree = JsonManipLogObj.DepthFirstTransversal("C:\Users\Guzman\Desktop\411-Project2\")
+            Dim CurrentDirectoryTree = JsonManipLogObj.DepthFirstTransversal(SrcPath)
 
             Dim timestampDateTime As Date
-            Dim datestring = "11/2/2023 11:42:21 PM"
+            Dim datestring = "11/8/2023 10:40:00 PM"
             Dim formatString = "M/d/yyyy h:m:s tt"
 
             timestampDateTime = Date.ParseExact(datestring, formatString, CultureInfo.InvariantCulture, DateTimeStyles.None)
 
-            UpdateDstEntries(LogTree, CurrentDirectoryTree, timestampDateTime, "C:\Users\Guzman\Desktop\Destination\report.zip")
+            UpdateDstEntries(LogTree, CurrentDirectoryTree, timestampDateTime, ZipDestinationPath, SrcPath, "")
+
+            Using sw As StreamWriter = File.CreateText(LogPath)
+                Using writer As New JsonTextWriter(sw)
+                    LogTree.WriteTo(writer)
+                End Using
+            End Using
         End Sub
 
-        Sub AddArchiveEntry(PathName As String, FullDestinationPath As String)
+        ' ==========================================================
+        ' Adds / Updates file entry at a relative path within a zip file
+        ' ==========================================================
 
+        Sub AddArchiveEntry(PathName As String, ZipDestintationPath As String, SrcPath As String)
+            Using Ziptoopen As Zip.ZipFile = Zip.ZipFile.Read(ZipDestintationPath)
+                Ziptoopen.UpdateFile(SrcPath, PathName)
+                Ziptoopen.Save()
+            End Using
         End Sub
 
-        Sub AddArchiveDirectory(PathName As String, FullDestinationPath As String)
-
+        ' ==========================================================
+        ' Adds a new directory entry at a relative path within a zip file
+        ' ==========================================================
+        Sub AddArchiveDirectory(PathName As String, ZipDestintationPath As String, DirectoryName As String)
+            Using zipToOpen As New FileStream(ZipDestintationPath, FileMode.Open)
+                Using archive As New ZipArchive(zipToOpen, ZipArchiveMode.Update)
+                    If PathName = "" Then
+                        archive.CreateEntry(DirectoryName & "\")
+                    Else
+                        archive.CreateEntry(PathName & "\" & DirectoryName & "\")
+                    End If
+                End Using
+            End Using
         End Sub
 
-        Sub UpdateDstEntries(LogTree As JArray, CurrectDirectoryTree As JArray, TimestampDateTime As Date, FullDestinationPath As String)
-            'Go through the treeobjects within sourcetree and update the ones where 
-            'Their UpdateTime is > TimestampDateTime
+        Sub UpdateDstEntries(ByRef LogTree As JArray, CurrectDirectoryTree As JArray, TimestampDateTime As Date, ZipDestinationPath As String, SrcPath As String, ZipDirectoryPath As String)
             For Each Treeobject As JToken In CurrectDirectoryTree.Children().ToList()
                 Dim TreeObjectTimeStamp As Date
                 Dim formatString = "M/d/yyyy h:m:s tt"
@@ -93,81 +118,130 @@ Namespace TestingEnvironment
                 End If
 
                 If TreeObjectTimeStamp > TimestampDateTime Then
-                    'IF the treeobject already exist within the log, update it (will only be files)
-                    'IF not then add it (can be files and directories) 
                     If Treeobject("Type").ToString() = "Directory" Then 'Add new directory into DstBackup and update log
-                        'Adding Directory into Dstbackup
+                        AddArchiveDirectory(ZipDirectoryPath, ZipDestinationPath, Treeobject("Name").ToString())
 
-                        'AddArchiveEntry(Treeobject("Name").ToString(), FullDestinationPath)
+                        Dim JsonDirectoryObject = New TreeObject() With {
+                        .Name = Treeobject("Name"),
+                        .Files = New List(Of TreeObject),
+                        .Type = "Directory",
+                        .UpdateTime = Treeobject("UpdateTime")
+                    }
+                        LogTree.Add(JObject.Parse(JsonConvert.SerializeObject(JsonDirectoryObject)))
+                    Else 'Adds / updates file entry within DstBackup and updates treelog
+                        AddArchiveEntry(ZipDirectoryPath, ZipDestinationPath, SrcPath & "\" & Treeobject("Name").ToString())
 
-                        'Add directory and it's treeobject in log
+                        If File.GetCreationTime(SrcPath & "\" & Treeobject("Name").ToString()) > TimestampDateTime Then 'Add the new file to the logtree if it was newly created
+                            Dim JsonFileObject = New TreeObject() With {
+                            .Name = Treeobject("Name"),
+                            .Files = New List(Of TreeObject),
+                            .Type = "File",
+                            .UpdateTime = Treeobject("UpdateTime")
+                        }
 
-                        'Dim JsonDirectoryObject = New TreeObject() With {
-                        '.Name = Treeobject("Name"),
-                        '.Files = New List(Of TreeObject),
-                        '.Type = "Directory",
-                        '.UpdateTime = Treeobject("UpdateTime")
-                        '}
-
-                        'LogTree.Add(JObject.Parse(JsonConvert.SerializeObject(JsonDirectoryObject))) 'Add the directory
-                    Else 'Update file in DstBackup
-                        'AddArchiveEntry(Treeobject("Name").ToString(), FullDestinationPath)
-
+                            LogTree.Add(JObject.Parse(JsonConvert.SerializeObject(JsonFileObject)))
+                        Else 'Update logtree entry
+                            For Each Obj As JToken In LogTree.Children().ToList()
+                                If Obj("Name") = Treeobject("Name").ToString() Then
+                                    Obj("UpdateTime") = Treeobject("UpdateTime")
+                                    Exit For
+                                End If
+                            Next
+                        End If
                     End If
                 End If
             Next
 
-            Return
-
-            'Go through directory treeobjects and update it's treeobject
-            'LOGTREE MUST BE UPDATED WITH NEW ANY NEW DIRECTORY BEFORE CONTINUING
-            Dim idx = 0
-            For Each TreeObject As JToken In CurrectDirectoryTree.Children()
+            'Branch into other directories to add / update remaining treeobjects
+            For Each TreeObject As JToken In CurrectDirectoryTree.Children().ToList()
                 If TreeObject("Type").ToString() = "Directory" Then
-                    UpdateDstEntriesVisit(LogTree(idx), TreeObject, TimestampDateTime, FullDestinationPath)
+                    Dim Branch As JToken = Nothing
+                    For Each t As JToken In LogTree.Children()
+                        If t("Name") = TreeObject("Name").ToString() Then
+                            Branch = t
+                            Exit For
+                        End If
+                    Next
+                    UpdateDstEntriesVisit(Branch, TreeObject, TimestampDateTime, ZipDestinationPath, SrcPath & "\" & TreeObject("Name").ToString(), TreeObject("Name").ToString())
                 End If
-                idx = idx + 1
             Next
         End Sub
 
-        Sub UpdateDstEntriesVisit(LogTree As JToken, CurrentDirectoryTree As JToken, TimestampDateTime As Date, FullDestinationPath As String)
-            For Each TreeObject As JToken In CurrentDirectoryTree.Children()("Files")("Value").Children()
+        Sub UpdateDstEntriesVisit(LogTree As JToken, CurrentDirectoryTree As JToken, TimestampDateTime As Date, ZipDestinationPath As String, SrcPath As String, ZipDirectoryPath As String)
+            For Each TreeObject As JToken In CurrentDirectoryTree("Files").Children().ToList()
                 Dim TreeObjectTimeStamp As Date
-                Dim enUS As New CultureInfo("en-US")
+                Dim formatString = "M/d/yyyy h:m:s tt"
 
                 'Convert the treeObjectTimestamp string into an actually Date to compare
-                If Not Date.TryParseExact(TreeObject("UpdateTime").ToString(), "MM/dd/yyyy hh:mm:ss tt", enUS, DateTimeStyles.None, TreeObjectTimeStamp) Then
+                If Not Date.TryParseExact(TreeObject("UpdateTime").ToString(), formatString, CultureInfo.InvariantCulture, DateTimeStyles.None, TreeObjectTimeStamp) Then
                     Console.WriteLine("Failed to convert string to Date, failure occurred in UpdateDstEntries")
                     Return
                 End If
 
                 If TreeObjectTimeStamp > TimestampDateTime Then
-                    'IF the treeobject already exist within the log, update it (will only be files)
-                    'IF not then add it (can be files and directories) 
                     If TreeObject("Type").ToString() = "Directory" Then 'Add new directory into DstBackup and update log
-                        'Adding Directory into Dstbackup
-                        '---
+                        AddArchiveDirectory(ZipDirectoryPath, ZipDestinationPath, TreeObject("Name").ToString())
 
-                        'Add directory and it's treeobject in log
-                        '---
+                        Dim JsonDirectoryObject = New TreeObject() With {
+                        .Name = TreeObject("Name"),
+                        .Files = New List(Of TreeObject),
+                        .Type = "Directory",
+                        .UpdateTime = TreeObject("UpdateTime")
+                    }
+
+                        Dim CurrentJarray = LogTree("Files").ToString()
+                        Dim NewJarray = JArray.Parse(CurrentJarray)
+                        NewJarray.Add(JObject.Parse(JsonConvert.SerializeObject(JsonDirectoryObject)))
+
+                        LogTree("Files") = NewJarray 'Add the directory to logtree
 
                     Else 'Update file in DstBackup and update log timestamp
+                        AddArchiveEntry(ZipDirectoryPath, ZipDestinationPath, SrcPath & "\" & TreeObject("Name").ToString())
 
+                        If File.GetCreationTime(SrcPath & "\" & TreeObject("Name").ToString()) > TimestampDateTime Then 'Add the new file to the logtree
+                            Dim JsonFileObject = New TreeObject() With {
+                            .Name = TreeObject("Name"),
+                            .Files = New List(Of TreeObject),
+                            .Type = "File",
+                            .UpdateTime = TreeObject("UpdateTime")
+                        }
+
+                            Dim CurrentJarray = LogTree("Files").ToString()
+                            Dim NewJarray = JArray.Parse(CurrentJarray)
+                            NewJarray.Add(JObject.Parse(JsonConvert.SerializeObject(JsonFileObject)))
+
+                            LogTree("Files") = NewJarray
+                        Else 'Update logtree entry
+                            For Each Obj As JToken In LogTree("Files").Children().ToList()
+                                If Obj("Name") = TreeObject("Name").ToString() Then
+                                    Obj("UpdateTime") = TreeObject("UpdateTime")
+                                    Exit For
+                                End If
+                            Next
+                        End If
                     End If
                 End If
             Next
 
-            'Go through directory treeobjects and update it's treeobject
-            'LOGTREE MUST BE UPDATED WITH NEW ANY NEW DIRECTORY BEFORE CONTINUING
-            Dim idx = 0
-            For Each TreeObject As JToken In CurrentDirectoryTree.Children()("Files")("Value").Children()
+            'Branch into other directories to add / update remaining treeobjects
+            For Each TreeObject As JToken In CurrentDirectoryTree("Files").Children().ToList()
                 If TreeObject("Type").ToString() = "Directory" Then
-                    UpdateDstEntriesVisit(LogTree.Children()("Files")("Value").Children()(idx), TreeObject, TimestampDateTime, FullDestinationPath)
+                    Dim Branch As Object = Nothing
+                    For Each t As JToken In LogTree("Files").Children() 'LogTree should have been updated with the new directory
+                        If t("Name") = TreeObject("Name").ToString() Then
+                            Branch = t
+                            Exit For
+                        End If
+                    Next
+
+                    UpdateDstEntriesVisit(Branch, TreeObject, TimestampDateTime, ZipDestinationPath, SrcPath & "\" & TreeObject("Name").ToString(), ZipDirectoryPath & "\" & TreeObject("Name").ToString())
                 End If
-                idx = idx + 1
             Next
         End Sub
 
+        ' ================================================================
+        ' Removes File Entry from a relative path within a Zip file
+        ' ================================================================
         Sub RemoveArchiveEntry(PathName As String, FullDestinationPath As String)
             Using Ziptoopen As Zip.ZipFile = Zip.ZipFile.Read(FullDestinationPath)
                 Ziptoopen.RemoveEntry(PathName)
@@ -175,6 +249,9 @@ Namespace TestingEnvironment
             End Using
         End Sub
 
+        ' ================================================================
+        ' Removes Directory Entry from a relative path within a Zip file
+        ' ================================================================
         Sub RemoveArchiveDirectory(PathName As String, FullDestinationPath As String)
             Using Ziptoopen As Zip.ZipFile = Zip.ZipFile.Read(FullDestinationPath)
                 Ziptoopen.RemoveSelectedEntries(PathName & "\*")
