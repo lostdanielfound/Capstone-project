@@ -1,5 +1,5 @@
 # BoxIT 
-## Capstone Project
+Capstone Project
 
 ### Overview
 BoxIT is a backup management software that serves as a utility in monitoring scheduled tasks in backing up files, folders and hard drives. Aside from backing up data, the software also allows the user to restore the data in the case of a Data loss incident. The key feature of the design is allowing the user to customize when scheduled backup tasks should occur to however the user prefers. 
