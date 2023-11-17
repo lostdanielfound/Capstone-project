@@ -6,9 +6,11 @@ Imports Newtonsoft.Json
 Imports Newtonsoft.Json.Linq
 
 Module Module1
+    Dim BackupPlansPath = ""
+
     Sub UpdateBackUpPlans(PlanName As String, ST As Integer)
         Dim jsonManipObj As JsonManip = New JsonManip()
-        jsonManipObj.SetJsonFile("Plans.json")
+        jsonManipObj.SetJsonFile(BackupPlansPath)
 
         Select Case ST
             Case ScheduleType.Daily
@@ -25,7 +27,6 @@ Module Module1
     Sub FullBackUp(args As String())
         Dim DestinationPath = args(2) & "\" & args(5) & "_Backup.zip"
 
-        'TODO: Update the zip file rather than deleting a duplicate
         If File.Exists(DestinationPath) Then
             File.Delete(DestinationPath)
         End If
@@ -35,7 +36,7 @@ Module Module1
 
     Sub IncrementalBackUp(args As String())
         Dim PlansManipObj As New JsonManip()
-        PlansManipObj.SetJsonFile("Plans.json")
+        PlansManipObj.SetJsonFile(BackupPlansPath)
 
         Dim PlanName = args(5)
         Dim ZipDestinationPath = args(2) & "\" & args(5) & "_Backup.zip"
@@ -261,6 +262,7 @@ Module Module1
                 TreeObject.Remove()
             End If
 
+
             If Not Directory.Exists(TreeObjectName) And TreeObject("Type") = "Directory" Then
                 RemoveArchiveDirectory(TreeObject("Name").ToString(), FullDestinationPath)
                 TreeObject.Remove()
@@ -317,7 +319,13 @@ Module Module1
         ' The file that is output should be the following format: 
         ' [Name of backup]_Backup.zip
 
+        BackupPlansPath = System.AppDomain.CurrentDomain.BaseDirectory() & "\..\" & "Plans.json"
+
         Dim args = Environment.GetCommandLineArgs() 'Get command line args
+        If args.Length <= 1 Then 'Zip process was passed no arguments, can't continue
+            Return
+        End If
+
         Dim BackUpName = args(5)
         Dim BackUpType = args(4)
         Dim ScheduleType = args(3)

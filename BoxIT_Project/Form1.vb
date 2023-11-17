@@ -42,7 +42,7 @@ Public Class Form1
         Dim TaskName = "BoxIT_" & BackUpName
         Dim ScheduleT As String
         Dim cmdline As String
-        Dim ExecutibleName = "Zip_Process.exe"
+        Dim ExecutibleName = "Zip_Process_Release\Zip_Process.exe"
         Select Case BackUpType 'Append BackupType to the Task name
             Case BackupPlan.FullBackup
                 TaskName &= "FullBackup"
@@ -241,17 +241,29 @@ Public Class Form1
 
         'Gets the current selected Radiobutton
         Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True)
+        Dim ArchiveDestinationPath = Dest & "\" & BackupNameTextBox.Text & "_Backup.zip"
         Dim wroteToFile = False
 
         'Writes to the Plans.json on new plan and schedules the backup plan
-        'TODO: For any setup backup plan, perform a fullback at the start.
         If selectedRadioButton.Text = "Full Backup" Then
+            'Performing fullbackup
+            If File.Exists(ArchiveDestinationPath) Then
+                File.Delete(ArchiveDestinationPath)
+            End If
+            ZipFile.CreateFromDirectory(Src, ArchiveDestinationPath, CompressionLevel.Optimal, False)
+
             'Schedule Backup task
             wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Now, Src, Dest, BackupPlan.FullBackup)
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.FullBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
         ElseIf selectedRadioButton.Text = "Incremental" Then
+            'Performing fullbackup
+            If File.Exists(ArchiveDestinationPath) Then
+                File.Delete(ArchiveDestinationPath)
+            End If
+            ZipFile.CreateFromDirectory(Src, ArchiveDestinationPath, CompressionLevel.Optimal, False)
+
             'Creating Logfile
             Dim logCreation As New JsonManip()
             logCreation.SetJsonFile(Src & "\.BoxITLog.json")
@@ -263,6 +275,12 @@ Public Class Form1
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.IncrementalBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
         ElseIf selectedRadioButton.Text = "Differntial" Then
+            'Performing fullbackup
+            If File.Exists(ArchiveDestinationPath) Then
+                File.Delete(ArchiveDestinationPath)
+            End If
+            ZipFile.CreateFromDirectory(Src, ArchiveDestinationPath, CompressionLevel.Optimal, False)
+
             'Creating Logfile
             Dim logCreation As New JsonManip()
             logCreation.SetJsonFile(Src & "\.BoxITLog.json")

@@ -22,6 +22,7 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Dim resources As ComponentModel.ComponentResourceManager = New ComponentModel.ComponentResourceManager(GetType(Form1))
         AddSourceBtn = New Button()
         Label1 = New Label()
         Panel1 = New Panel()
@@ -156,6 +157,7 @@ Partial Class Form1
         ' RadioButton3
         ' 
         RadioButton3.AutoSize = True
+        RadioButton3.Enabled = False
         RadioButton3.Location = New Point(15, 77)
         RadioButton3.Name = "RadioButton3"
         RadioButton3.Size = New Size(82, 22)
@@ -266,6 +268,7 @@ Partial Class Form1
         ClientSize = New Size(923, 402)
         Controls.Add(Panel1)
         FormBorderStyle = FormBorderStyle.FixedDialog
+        Icon = CType(resources.GetObject("$this.Icon"), Icon)
         MaximizeBox = False
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen

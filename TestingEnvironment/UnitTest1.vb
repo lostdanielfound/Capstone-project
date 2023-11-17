@@ -13,6 +13,21 @@ Namespace TestingEnvironment
         Private JsonManipObj As JsonManip
         Private JsonManipLogObj As JsonManip
         Private JsonFileName = "Plans_UnitTest.json"
+        Private JsonLogName = ".BoxITLog.json"
+
+        Private ReadOnly CurrentDirectory = System.Environment.CurrentDirectory()
+        Private ReadOnly SourceDirectory = CurrentDirectory & "\" & "TestRoot"
+        Private ReadOnly DestinationDirectory = CurrentDirectory & "\" & "Dest"
+        Private ReadOnly DestinationZipName = DestinationDirectory & "\" & "Backup.zip"
+
+        Private ReadOnly filename1 = "filename1.txt"
+        Private ReadOnly filename2 = "filename2.txt"
+        Private ReadOnly filename3 = "filename3.txt"
+
+        Private ReadOnly SubdirectoryName1 = "Sub1"
+        Private ReadOnly SubdirectoryName2 = "Sub2"
+        Private ReadOnly SubdirectoryName3 = "Sub3"
+
 
         <SetUp>
         Public Sub Setup()
@@ -29,17 +44,210 @@ Namespace TestingEnvironment
             Assert.AreEqual(Plans.Capacity, 0)
         End Sub
 
-        ' Used to testout array access in JToken
-        '<Test>
-        Public Sub LogTreeManip_StageTest()
-            JsonManipLogObj.SetJsonFile("C:\Users\Guzman\Desktop\411-Project2\.BoxITLog.json", JsonManip.JsonFileType.Log)
-            Dim LogTree = JsonManipLogObj.ReadJarray()
 
-            'Test to see if we can recursivly transverse through token array
-            Dim nameOFDirecotyr = LogTree(0)("Files")(0)("Name").ToString()
+        <Test>
+        Public Sub SimpleFileLog_EqualTest()
+            Directory.CreateDirectory(SourceDirectory)
+            Directory.CreateDirectory(DestinationDirectory)
+
+            Dim fs = File.Create(SourceDirectory & "\" & filename1)
+            fs.Close()
+
+            ZipFile.CreateFromDirectory(SourceDirectory, DestinationZipName, CompressionLevel.Optimal, False) 'Create Zip Archive
+            FileAssert.Exists(DestinationZipName)
+
+            ' Perform Tree Creation of SourceDirectory Structure
+            JsonManipLogObj.SetJsonFile(SourceDirectory & "\" & JsonLogName, JsonManip.JsonFileType.Log)
+            JsonManipLogObj.JsonTreeCreation()
+
+            Dim tree = JsonManipLogObj.ReadJarray()
+            Dim treefilename = tree(0)("Name").ToString()
+
+            Assert.AreEqual(filename1, treefilename)
+
+            'TearDown Remove Directories and Files
+            Directory.Delete(SourceDirectory, True)
+            Directory.Delete(DestinationDirectory, True)
         End Sub
 
-        ' The Delete Entry process of the Incremental back
+        <Test>
+        Public Sub MultipleFileLog_EqualTest()
+            Directory.CreateDirectory(SourceDirectory)
+            Directory.CreateDirectory(DestinationDirectory)
+
+            Dim fs = File.Create(SourceDirectory & "\" & filename1)
+            fs.Close()
+            fs = File.Create(SourceDirectory & "\" & filename2)
+            fs.Close()
+            fs = File.Create(SourceDirectory & "\" & filename3)
+            fs.Close()
+
+            ZipFile.CreateFromDirectory(SourceDirectory, DestinationZipName, CompressionLevel.Optimal, False) 'Create Zip Archive
+            FileAssert.Exists(DestinationZipName)
+
+            ' Perform Tree Creation of SourceDirectory Structure
+            JsonManipLogObj.SetJsonFile(SourceDirectory & "\" & JsonLogName, JsonManip.JsonFileType.Log)
+            JsonManipLogObj.JsonTreeCreation()
+
+            Dim tree = JsonManipLogObj.ReadJarray()
+            Assert.AreEqual(filename1, tree(0)("Name").ToString())
+            Assert.AreEqual(filename2, tree(1)("Name").ToString())
+            Assert.AreEqual(filename3, tree(2)("Name").ToString())
+
+            'TearDown Remove Directories and Files
+            Directory.Delete(SourceDirectory, True)
+            Directory.Delete(DestinationDirectory, True)
+        End Sub
+
+        <Test>
+        Public Sub SimpleSubDirectoryLog_EqualTest()
+            Directory.CreateDirectory(SourceDirectory)
+            Directory.CreateDirectory(SourceDirectory & "\" & SubdirectoryName1)
+            Directory.CreateDirectory(DestinationDirectory)
+
+            Dim fs = File.Create(SourceDirectory & "\" & SubdirectoryName1 & "\" & filename1)
+            fs.Close()
+            fs = File.Create(SourceDirectory & "\" & SubdirectoryName1 & "\" & filename2)
+            fs.Close()
+            fs = File.Create(SourceDirectory & "\" & SubdirectoryName1 & "\" & filename3)
+            fs.Close()
+
+            ZipFile.CreateFromDirectory(SourceDirectory, DestinationZipName, CompressionLevel.Optimal, False) 'Create Zip Archive
+            FileAssert.Exists(DestinationZipName)
+
+            ' Perform Tree Creation of SourceDirectory Structure
+            JsonManipLogObj.SetJsonFile(SourceDirectory & "\" & JsonLogName, JsonManip.JsonFileType.Log)
+            JsonManipLogObj.JsonTreeCreation()
+
+            Dim tree = JsonManipLogObj.ReadJarray()
+            Console.WriteLine(tree(0)("Files")(0)("Name").ToString())
+            Assert.AreEqual(filename1, tree(0)("Files")(0)("Name").ToString())
+
+            'TearDown Remove Directories and Files
+            Directory.Delete(SourceDirectory, True)
+            Directory.Delete(DestinationDirectory, True)
+        End Sub
+
+        <Test>
+        Public Sub MultipleSubDirectoryLog_EqualTest()
+            'Creating Deep DirectoryTree
+            Directory.CreateDirectory(SourceDirectory & "\" & SubdirectoryName1 & "\" & SubdirectoryName2 & "\" & SubdirectoryName3)
+            Directory.CreateDirectory(DestinationDirectory)
+
+            Dim fs = File.Create(SourceDirectory & "\" & SubdirectoryName1 & "\" & filename1)
+            fs.Close()
+            fs = File.Create(SourceDirectory & "\" & SubdirectoryName1 & "\" & SubdirectoryName2 & "\" & filename2)
+            fs.Close()
+            fs = File.Create(SourceDirectory & "\" & SubdirectoryName1 & "\" & SubdirectoryName2 & "\" & SubdirectoryName3 & "\" & filename3)
+            fs.Close()
+
+            ZipFile.CreateFromDirectory(SourceDirectory, DestinationZipName, CompressionLevel.Optimal, False) 'Create Zip Archive
+            FileAssert.Exists(DestinationZipName)
+
+            ' Perform Tree Creation of SourceDirectory Structure
+            JsonManipLogObj.SetJsonFile(SourceDirectory & "\" & JsonLogName, JsonManip.JsonFileType.Log)
+            JsonManipLogObj.JsonTreeCreation()
+
+            Dim tree = JsonManipLogObj.ReadJarray()
+            Assert.AreEqual(filename1, tree(0)("Files")(1)("Name").ToString())
+            Assert.AreEqual(filename2, tree(0)("Files")(0)("Files")(1)("Name").ToString())
+            Assert.AreEqual(filename3, tree(0)("Files")(0)("Files")(0)("Files")(0)("Name").ToString())
+
+            'TearDown Remove Directories and Files
+            Directory.Delete(SourceDirectory, True)
+            Directory.Delete(DestinationDirectory, True)
+        End Sub
+
+        <Test>
+        Public Sub SimpleFileCreationUpdate_EqualTest()
+            Directory.CreateDirectory(SourceDirectory)
+            Directory.CreateDirectory(DestinationDirectory)
+
+            Dim fs = File.Create(SourceDirectory & "\" & filename1)
+            fs.Close()
+
+            ZipFile.CreateFromDirectory(SourceDirectory, DestinationZipName, CompressionLevel.Optimal, False) 'Create Zip Archive
+            FileAssert.Exists(DestinationZipName)
+
+            ' Perform Tree Creation of SourceDirectory Structure
+            JsonManipLogObj.SetJsonFile(SourceDirectory & "\" & JsonLogName, JsonManip.JsonFileType.Log)
+            JsonManipLogObj.JsonTreeCreation()
+            Dim PreviousUpdateTime = Now
+            Dim LogTree = JsonManipLogObj.ReadJarray()
+
+            ' Modification of Source Tree ======== 
+            Threading.Thread.Sleep(3000) 'Wait 3 seconds before update
+            fs = File.Create(SourceDirectory & "\" & filename2)
+            fs.Close()
+            ' Modification of Source Tree ======== 
+
+            Dim CurrentDirectoryTree = JsonManipLogObj.DepthFirstTransversal(SourceDirectory) 'Get the Current Directory Tree
+
+            ' Incremental Update Process =========
+            DeleteSrcEntires(LogTree, SourceDirectory, DestinationZipName)
+            UpdateDstEntries(LogTree, CurrentDirectoryTree, PreviousUpdateTime, DestinationZipName, SourceDirectory, "")
+            ' Incremental Update Process =========
+
+            Assert.AreEqual(filename2, LogTree(1)("Name").ToString())
+
+            Directory.Delete(SourceDirectory, True)
+            Directory.Delete(DestinationDirectory, True)
+        End Sub
+
+        <Test>
+        Public Sub SimpleFileDeletionUpdate_EqualTest()
+            Directory.CreateDirectory(SourceDirectory)
+            Directory.CreateDirectory(DestinationDirectory)
+
+            Dim fs = File.Create(SourceDirectory & "\" & filename2)
+            fs.Close()
+            fs = File.Create(SourceDirectory & "\" & filename1)
+            fs.Close()
+
+            ZipFile.CreateFromDirectory(SourceDirectory, DestinationZipName, CompressionLevel.Optimal, False) 'Create Zip Archive
+            FileAssert.Exists(DestinationZipName)
+
+            ' Perform Tree Creation of SourceDirectory Structure
+            JsonManipLogObj.SetJsonFile(SourceDirectory & "\" & JsonLogName, JsonManip.JsonFileType.Log)
+            JsonManipLogObj.JsonTreeCreation()
+            Dim PreviousUpdateTime = Now
+            Dim LogTree = JsonManipLogObj.ReadJarray()
+
+            ' Modification of Source Tree ======== 
+            Threading.Thread.Sleep(3000) 'Wait 3 seconds before update
+            File.Delete(SourceDirectory & "\" & filename2)
+            ' Modification of Source Tree ======== 
+
+            Dim CurrentDirectoryTree = JsonManipLogObj.DepthFirstTransversal(SourceDirectory) 'Get the Current Directory Tree
+
+            ' Incremental Update Process =========
+            DeleteSrcEntires(LogTree, SourceDirectory, DestinationZipName)
+            UpdateDstEntries(LogTree, CurrentDirectoryTree, PreviousUpdateTime, DestinationZipName, SourceDirectory, "")
+            ' Incremental Update Process =========
+
+            Console.WriteLine(LogTree.ToString())
+            Assert.AreNotEqual(filename2, LogTree(0)("Name").ToString())
+
+            Directory.Delete(SourceDirectory, True)
+            Directory.Delete(DestinationDirectory, True)
+        End Sub
+
+        <TearDown>
+        Public Sub Teardown()
+            If File.Exists(JsonFileName) Then
+                File.Delete(JsonFileName)
+            End If
+
+            If Directory.Exists(SourceDirectory) Then
+                Directory.Delete(SourceDirectory, True)
+            End If
+
+            If Directory.Exists(DestinationDirectory) Then
+                Directory.Delete(DestinationDirectory, True)
+            End If
+        End Sub
+
+        ' The Delete Entry process of the Incremental backup
         '<Test>
         Public Sub IncrementalDeleteProcess_StageTest()
             JsonManipLogObj.SetJsonFile("C:\Users\Guzman\Desktop\411-Project2\.BoxITLog.json", JsonManip.JsonFileType.Log)
@@ -56,7 +264,8 @@ Namespace TestingEnvironment
             Assert.IsTrue(True)
         End Sub
 
-        <Test>
+        ' Update Entry process for the incremental backup 
+        '<Test>
         Public Sub IncrementalUpdateProcess_StateTest()
             Dim LogPath = "C:\Users\Guzman\Desktop\Incremental_Testcases\Simple\.BoxITLog.json"
             Dim SrcPath = "C:\Users\Guzman\Desktop\Incremental_Testcases\Simple"
@@ -313,12 +522,6 @@ Namespace TestingEnvironment
             Next
         End Sub
 
-        <TearDown>
-        Public Sub Teardown()
-            If File.Exists(JsonFileName) Then
-                File.Delete(JsonFileName)
-            End If
-        End Sub
 
     End Class
 
