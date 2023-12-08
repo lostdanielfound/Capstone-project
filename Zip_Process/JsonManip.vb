@@ -218,6 +218,38 @@ Public Class JsonManip
         Return String.Empty
     End Function
 
+    Public Function ModifyPlanObject_Previous_backup(PlanName As String, ScheduleDate As String) As Boolean
+        If _JsonType = JsonFileType.Log Then
+            Throw New JsonException()
+        End If
+
+        Dim sourceJsonArray As JArray
+
+        Using reader As New StreamReader(_JsonFilePath)
+            Dim JsonStream = reader.ReadToEnd() 'Read json file into stream
+            sourceJsonArray = JArray.Parse(JsonStream) 'Parse Array json object
+        End Using
+
+        Dim Flag = False
+        'Updates the Nxt_backup time for PlanName in Jarray
+        For Each plan In sourceJsonArray
+            If plan("Name") = PlanName Then
+                plan("Previous_backup") = ScheduleDate
+                Flag = True
+                Exit For
+            End If
+        Next
+
+        'Writes content of Jarray back into the json file
+        Using sw As StreamWriter = File.CreateText(_JsonFilePath)
+            Using writer As New JsonTextWriter(sw)
+                sourceJsonArray.WriteTo(writer)
+            End Using
+        End Using
+
+        Return Flag
+    End Function
+
     ' ReadPlanObjectsFromJsonFile() 
     ' @desc Reads from the Plans.json and returns back a list of current
     ' active backup plans 
@@ -297,6 +329,7 @@ Public Class JsonManip
             sourceJsonArray = JArray.Parse(JsonStream) 'Parse Array json object
         End Using
 
+        ' TODO: ensure index that is removed actually exist
         sourceJsonArray(arrayIndex).Remove() 'Removed the PlanObject
 
         'Writes content of Jarray back into the json file

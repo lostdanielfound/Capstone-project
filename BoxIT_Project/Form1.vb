@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.IO.Compression
+Imports Ionic
 
 Public Class Form1
 
@@ -26,6 +27,126 @@ Public Class Form1
 
     End Sub
 
+    Private Function GetNextCustomBackUpDate() As Date
+        Dim DaysCounter = 1
+
+        Select Case Today.DayOfWeek
+            Case DayOfWeek.Sunday
+                Dim CheckBoxList As New List(Of Boolean)() From {
+                    MCheckbox.Checked,
+                    TCheckBox.Checked,
+                    WCheckbox.Checked,
+                    ThCheckBox.Checked,
+                    FCheckBox.Checked,
+                    SatCheckBox.Checked
+                }
+                For Each box As Boolean In CheckBoxList
+                    If box Then
+                        Return Now.AddDays(DaysCounter)
+                    End If
+                    DaysCounter += 1
+                Next
+                Exit Select
+            Case DayOfWeek.Monday
+                Dim CheckBoxList As New List(Of Boolean)() From {
+                    TCheckBox.Checked,
+                    WCheckbox.Checked,
+                    ThCheckBox.Checked,
+                    FCheckBox.Checked,
+                    SatCheckBox.Checked,
+                    SunCheckBox.Checked
+                }
+                For Each box As Boolean In CheckBoxList
+                    If box Then
+                        Return Now.AddDays(DaysCounter)
+                    End If
+                    DaysCounter += 1
+                Next
+                Exit Select
+            Case DayOfWeek.Tuesday
+                Dim CheckBoxList As New List(Of Boolean)() From {
+                    WCheckbox.Checked,
+                    ThCheckBox.Checked,
+                    FCheckBox.Checked,
+                    SatCheckBox.Checked,
+                    SunCheckBox.Checked,
+                    MCheckbox.Checked
+                }
+                For Each box As Boolean In CheckBoxList
+                    If box Then
+                        Return Now.AddDays(DaysCounter)
+                    End If
+                    DaysCounter += 1
+                Next
+                Exit Select
+            Case DayOfWeek.Wednesday
+                Dim CheckBoxList As New List(Of Boolean)() From {
+                    ThCheckBox.Checked,
+                    FCheckBox.Checked,
+                    SatCheckBox.Checked,
+                    SunCheckBox.Checked,
+                    MCheckbox.Checked,
+                    TCheckBox.Checked
+                }
+                For Each box As Boolean In CheckBoxList
+                    If box Then
+                        Return Now.AddDays(DaysCounter)
+                    End If
+                    DaysCounter += 1
+                Next
+                Exit Select
+            Case DayOfWeek.Thursday
+                Dim CheckBoxList As New List(Of Boolean)() From {
+                    FCheckBox.Checked,
+                    SatCheckBox.Checked,
+                    SunCheckBox.Checked,
+                    MCheckbox.Checked,
+                    TCheckBox.Checked,
+                    WCheckbox.Checked
+                }
+                For Each box As Boolean In CheckBoxList
+                    If box Then
+                        Return Now.AddDays(DaysCounter)
+                    End If
+                    DaysCounter += 1
+                Next
+                Exit Select
+            Case DayOfWeek.Friday
+                Dim CheckBoxList As New List(Of Boolean)() From {
+                    SatCheckBox.Checked,
+                    SunCheckBox.Checked,
+                    MCheckbox.Checked,
+                    TCheckBox.Checked,
+                    WCheckbox.Checked,
+                    ThCheckBox.Checked
+                }
+                For Each box As Boolean In CheckBoxList
+                    If box Then
+                        Return Now.AddDays(DaysCounter)
+                    End If
+                    DaysCounter += 1
+                Next
+                Exit Select
+            Case DayOfWeek.Saturday
+                Dim CheckBoxList As New List(Of Boolean)() From {
+                    SunCheckBox.Checked,
+                    MCheckbox.Checked,
+                    TCheckBox.Checked,
+                    WCheckbox.Checked,
+                    ThCheckBox.Checked,
+                    FCheckBox.Checked
+                }
+                For Each box As Boolean In CheckBoxList
+                    If box Then
+                        Return Now.AddDays(DaysCounter)
+                    End If
+                    DaysCounter += 1
+                Next
+                Exit Select
+        End Select
+        Return Now.AddDays(7)
+    End Function
+
     Private Function BackupTypeToEnum(Str As String) As BackupPlan
         If Str.ToLower() = "Full Backup".ToLower() Then
             Return BackupPlan.FullBackup
@@ -45,33 +166,65 @@ Public Class Form1
         Dim ExecutibleName = "Zip_Process_Release\Zip_Process.exe"
         Select Case BackUpType 'Append BackupType to the Task name
             Case BackupPlan.FullBackup
-                TaskName &= "FullBackup"
+                TaskName &= "_FullBackup"
             Case BackupPlan.IncrementalBackup
-                TaskName &= "IncrementalBackup"
+                TaskName &= "_IncrementalBackup"
             Case BackupPlan.DifferentialBackup
-                TaskName &= "DifferentialBackup"
+                TaskName &= "_DifferentialBackup"
             Case Else
         End Select
 
         Select Case ST
             Case ScheduleType.Daily
                 ScheduleT = "daily"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & "\" & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & "\" & Chr(34) & " " & "\" & Chr(34) & Src & "\" & Chr(34) & " " & "\" & Chr(34) & Dst & "\" & Chr(34) & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Weekly
                 ScheduleT = "weekly"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & "\" & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & "\" & Chr(34) & " " & "\" & Chr(34) & Src & "\" & Chr(34) & " " & "\" & Chr(34) & Dst & "\" & Chr(34) & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Monthly
                 ScheduleT = "monthly"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & "\" & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & "\" & Chr(34) & " " & "\" & Chr(34) & Src & "\" & Chr(34) & " " & "\" & Chr(34) & Dst & "\" & Chr(34) & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
             Case ScheduleType.Yearly
                 ScheduleT = "monthly"
-                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & " " & Src & " " & Dst & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
+                cmdline = "schtasks /create /sc " & ScheduleT & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & "\" & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & "\" & Chr(34) & " " & "\" & Chr(34) & Src & "\" & Chr(34) & " " & "\" & Chr(34) & Dst & "\" & Chr(34) & " " & ST & " " & BackUpType & " " & BackUpName & Chr(34)
+                Log("Executing CMD scheduler command:" & cmdline)
+                Shell(cmdline)
+            Case ScheduleType.Custom
+                Dim CheckBoxList As New List(Of Boolean)() From {
+                    SunCheckBox.Checked,
+                    MCheckbox.Checked,
+                    TCheckBox.Checked,
+                    WCheckbox.Checked,
+                    ThCheckBox.Checked,
+                    FCheckBox.Checked,
+                    SatCheckBox.Checked
+                }
+                Dim DaysToStrings = New String() {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"}
+                Dim CustomString As String = String.Empty
+                Dim ArrCounter = 0
+                For Each box As Boolean In CheckBoxList
+                    If CustomString = String.Empty And box Then
+                        CustomString = DaysToStrings(ArrCounter)
+                    ElseIf box Then
+                        CustomString = CustomString & "," & DaysToStrings(ArrCounter)
+                    End If
+                    ArrCounter += 1
+                Next
+
+                ScheduleT = "weekly"
+
+                If EnableEndBackupDate.Checked Then
+                    cmdline = "schtasks /create /sc " & ScheduleT & " /d " & CustomString & " /ed " & EndingBackupDateAndTimePicker.Value.ToString("MM/dd/yyy") & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & "\" & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & "\" & Chr(34) & " " & "\" & Chr(34) & Src & "\" & Chr(34) & " " & "\" & Chr(34) & Dst & "\" & Chr(34) & " " & ST & " " & BackUpType & " " & BackUpName & " " & CustomString & Chr(34)
+                Else
+                    cmdline = "schtasks /create /sc " & ScheduleT & " /d " & CustomString & " /tn " & Chr(34) & TaskName & Chr(34) & " /tr " & Chr(34) & "\" & Chr(34) & Environment.CurrentDirectory & "\" & ExecutibleName & "\" & Chr(34) & " " & "\" & Chr(34) & Src & "\" & Chr(34) & " " & "\" & Chr(34) & Dst & "\" & Chr(34) & " " & ST & " " & BackUpType & " " & BackUpName & " " & CustomString & Chr(34)
+                End If
+
                 Log("Executing CMD scheduler command:" & cmdline)
                 Shell(cmdline)
         End Select
@@ -83,11 +236,11 @@ Public Class Form1
         Dim cmdline As String
         Select Case BackupType 'Append BackupType to the Task name
             Case BackupPlan.FullBackup
-                TaskName &= "FullBackup"
+                TaskName &= "_FullBackup"
             Case BackupPlan.IncrementalBackup
-                TaskName &= "IncrementalBackup"
+                TaskName &= "_IncrementalBackup"
             Case BackupPlan.DifferentialBackup
-                TaskName &= "DifferentialBackup"
+                TaskName &= "_DifferentialBackup"
             Case Else
         End Select
 
@@ -129,22 +282,45 @@ Public Class Form1
         Next
     End Sub
 
+    Private Sub ActivateBackupBtn()
+        Dim EnableCondition = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
+
+        DaysSelected = SunCheckBox.Checked Or MCheckbox.Checked Or TCheckBox.Checked Or WCheckbox.Checked Or ThCheckBox.Checked Or FCheckBox.Checked Or SatCheckBox.Checked
+
+        If EnableCondition And (ScheduleTypeComboBox.SelectedIndex <> ScheduleType.Custom) Then
+            BackupBtn.Enabled = True
+            BackupBtn.BackColor = Color.FromArgb(192, 255, 192)
+        ElseIf EnableCondition And (ScheduleTypeComboBox.SelectedIndex = ScheduleType.Custom) Then
+            If (OccurancesComboBox.SelectedIndex <> -1) And DaysSelected Then
+                BackupBtn.Enabled = True
+                BackupBtn.BackColor = Color.FromArgb(192, 255, 192)
+            End If
+        Else
+            BackupBtn.Enabled = False
+            BackupBtn.BackColor = Color.FromArgb(208, 209, 201)
+        End If
+    End Sub
+
     '===================
     ' Form variables
     '===================
     Dim Src As String = String.Empty
-    Dim Dest As String = "%userprofile\Documents\BoxIT_Backups" 'Default Backup destination
+    Dim Dest As String = String.Empty
+
+    Dim StartBackupDate As Date
+    Dim EndBackupDate As Date
 
     'Flags for user progression
     Dim SrcChosen = False
     Dim DestChosen = False
     Dim ScheduleTypeChosen = False
     Dim BackupNameChosen = False
+    Dim DaysSelected = False
 
     '===================
     ' Event Handlers
     '===================
-    Private Sub AddSourceBtnClick(sender As Object, e As EventArgs) Handles AddSourceBtn.Click
+    Private Sub AddSourceBtn_Click(sender As Object, e As EventArgs) Handles AddSourceBtn.Click
 
         'Bring up Dialog to select source
         Dim folderSelectionDig As New FolderBrowserDialog With {
@@ -157,23 +333,37 @@ Public Class Form1
         Select Case ReturnResult
             Case DialogResult.OK 'Set the backup source
                 Src = folderSelectionDig.SelectedPath
-                Label1.Text = folderSelectionDig.SelectedPath
+                SourceTextBox.Text = Src
+                SourceTextBox.BackColor = Color.FromArgb(192, 255, 192)
                 SrcChosen = True 'Set flag
                 Log("Set Src as " & Src)
-
                 AddDestBtn.Enabled = True
             Case DialogResult.Cancel 'Dialog failed, reset flag
                 SrcChosen = False
-                Label1.Text = "Please select a Source"
+                SourceTextBox.Text = "Please select a Source"
                 Src = String.Empty
         End Select
 
         Backup_Plan_RadioSelection.Enabled = (SrcChosen And DestChosen)
 
-        BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
+        ActivateBackupBtn()
     End Sub
 
-    Private Sub AddDestBtnClick(sender As Object, e As EventArgs) Handles AddDestBtn.Click
+    Private Sub Clear1Btn_Click(sender As Object, e As EventArgs) Handles Clear1Btn.Click
+        If Src = String.Empty Then
+            Return
+        End If
+        SourceTextBox.Text = "Please select a Source"
+        SourceTextBox.BackColor = Color.White
+        SrcChosen = False 'Set flag
+        Log("Clearing Src")
+        Src = String.Empty
+
+        Backup_Plan_RadioSelection.Enabled = (SrcChosen And DestChosen)
+        ActivateBackupBtn()
+    End Sub
+
+    Private Sub AddDestBtn_Click(sender As Object, e As EventArgs) Handles AddDestBtn.Click
 
         'Bring up Dialog to select source
         Dim folderSelectionDig As New FolderBrowserDialog With {
@@ -185,33 +375,33 @@ Public Class Form1
         Select Case ReturnResult
             Case DialogResult.OK
                 Dest = folderSelectionDig.SelectedPath
-                Label2.Text = Dest
-                DestChosen = True
+                DestinationTextBox.Text = Dest
+                DestinationTextBox.BackColor = Color.FromArgb(192, 255, 192)
+                DestChosen = True 'Set flag
                 Log("Set Dest as " & Dest)
             Case DialogResult.Cancel 'Reset flag and Dest 
                 DestChosen = False
-                Label2.Text = "Please select a Destination"
+                DestinationTextBox.Text = "Please select a Destination"
                 Dest = String.Empty
         End Select
 
         Backup_Plan_RadioSelection.Enabled = (SrcChosen And DestChosen)
 
-        BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
+        ActivateBackupBtn()
     End Sub
 
-    Private Sub QuickBackupBtn_Click(sender As Object, e As EventArgs) Handles QuickBackupBtn.Click
-        If Src = "" Or Dest = "" Then 'Check if Src and Dest have been selected 
-            MsgBox("Please select a Source and Destination!", MsgBoxStyle.Information, "No Source or Destination")
+    Private Sub Clear2Btn_Click(sender As Object, e As EventArgs) Handles Clear2Btn.Click
+        If Dest = String.Empty Then
             Return
         End If
+        DestinationTextBox.Text = "Please select a Destination"
+        DestinationTextBox.BackColor = Color.White
+        DestChosen = False
+        Log("Clearing Dest")
+        Dest = String.Empty
 
-        '2nd Obj: Create Zip file and store it within Dest directory
-        Log("Compressing Src directory and storing it in " & Dest)
-        Dim ZipUuid As String = Guid.NewGuid().ToString() 'Generating new uuid
-        Log("Start Compression")
-        ZipFile.CreateFromDirectory(Src, Dest & "\Backup_" & ZipUuid & ".zip", CompressionLevel.SmallestSize, False)
-        Log("Finished Compression")
-        MsgBox("Backup has been created!", MsgBoxStyle.OkOnly, "Backup Complete")
+        Backup_Plan_RadioSelection.Enabled = (SrcChosen And DestChosen)
+        ActivateBackupBtn()
     End Sub
 
     Private Sub BackupBtn_Click(sender As Object, e As EventArgs) Handles BackupBtn.Click
@@ -219,6 +409,13 @@ Public Class Form1
         'Ensure that User has selected a valid Src and Dest
         If Src = "" Or Dest = "" Then
             MsgBox("Please select a Source and Destination!", MsgBoxStyle.Information, "No Source or Destination")
+            BackupBtn.Enabled = False
+            BackupBtn.BackColor = Color.FromArgb(208, 209, 201)
+            Return
+        ElseIf CustomizeScheduleGroupBox.Enabled = True And DaysSelected = False Then
+            MsgBox("Please selected a day(s) to repeat backup task!", MsgBoxStyle.Information, "No day(s) selected")
+            BackupBtn.Enabled = False
+            BackupBtn.BackColor = Color.FromArgb(208, 209, 201)
             Return
         End If
 
@@ -230,17 +427,23 @@ Public Class Form1
         'Switch statment for to get the next scheduled backup
         Select Case ScheduleTypeComboBox.SelectedIndex
             Case ScheduleType.Daily
-                NextBackupDate = Now.AddDays(1).ToString()
+                NextBackUpDate = Now.AddDays(1).ToString()
             Case ScheduleType.Weekly
                 NextBackUpDate = Now.AddDays(7).ToString()
             Case ScheduleType.Monthly
                 NextBackUpDate = Now.AddMonths(1).ToString()
             Case ScheduleType.Yearly
                 NextBackUpDate = Now.AddYears(1).ToString()
+            Case ScheduleType.Custom
+                If OccurancesComboBox.SelectedText = "Daily" Then
+                    NextBackUpDate = Now.AddDays(1).ToString()
+                Else
+                    NextBackUpDate = GetNextCustomBackUpDate()
+                End If
+
         End Select
 
-        'Gets the current selected Radiobutton
-        Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True)
+        Dim selectedRadioButton As RadioButton = Backup_Plan_RadioSelection.Controls.OfType(Of RadioButton).FirstOrDefault(Function(r) r.Checked = True) 'Gets the current selected Radiobutton
         Dim ArchiveDestinationPath = Dest & "\" & BackupNameTextBox.Text & "_Backup.zip"
         Dim wroteToFile = False
 
@@ -250,6 +453,7 @@ Public Class Form1
             If File.Exists(ArchiveDestinationPath) Then
                 File.Delete(ArchiveDestinationPath)
             End If
+
             ZipFile.CreateFromDirectory(Src, ArchiveDestinationPath, CompressionLevel.Optimal, False)
 
             'Schedule Backup task
@@ -274,23 +478,6 @@ Public Class Form1
             If wroteToFile Then
                 SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.IncrementalBackup, ScheduleTypeComboBox.SelectedIndex)
             End If
-        ElseIf selectedRadioButton.Text = "Differntial" Then
-            'Performing fullbackup
-            If File.Exists(ArchiveDestinationPath) Then
-                File.Delete(ArchiveDestinationPath)
-            End If
-            ZipFile.CreateFromDirectory(Src, ArchiveDestinationPath, CompressionLevel.Optimal, False)
-
-            'Creating Logfile
-            Dim logCreation As New JsonManip()
-            logCreation.SetJsonFile(Src & "\.BoxITLog.json")
-            logCreation.JsonTreeCreation()
-
-            'Scheduling backup task
-            wroteToFile = jsonManipObj.WritePlanObjectToJsonFile(BackupNameTextBox.Text, NextBackUpDate, Now, Src, Dest, BackupPlan.DifferentialBackup)
-            If wroteToFile Then
-                SchedulePlanTask(Src, Dest, BackupNameTextBox.Text, BackupPlan.DifferentialBackup, ScheduleTypeComboBox.SelectedIndex)
-            End If
         End If
 
         'Conclude Plan addition
@@ -301,24 +488,91 @@ Public Class Form1
             MsgBox("Failed to create Backup Plan: " & selectedRadioButton.Text, vbOKOnly, "Failed to Write")
             Log("Failed to write Plan object to Plans.json")
         End If
+
         PopulatePlansTable() 'RePopulating Plans Data table
     End Sub
 
     Private Sub BackupNameTextBox_TextChanged(sender As Object, e As EventArgs) Handles BackupNameTextBox.TextChanged
         BackupNameChosen = (BackupNameTextBox.Text <> String.Empty)
-        BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
+        ActivateBackupBtn()
     End Sub
 
     Private Sub ScheduleTypeComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ScheduleTypeComboBox.SelectedIndexChanged
         ScheduleTypeChosen = (ScheduleTypeComboBox.SelectedItem.ToString() <> String.Empty)
-        BackupBtn.Enabled = (SrcChosen And DestChosen And ScheduleTypeChosen And BackupNameChosen)
+        If ScheduleTypeComboBox.SelectedIndex = ScheduleType.Custom Then
+            CustomizeScheduleGroupBox.Enabled = True
+            ActivateBackupBtn()
+            Return
+        End If
+
+        CustomizeScheduleGroupBox.Enabled = False 'Ensure that the groupbox is disabled if user didn't selected Custom
+        ActivateBackupBtn()
+    End Sub
+
+    Private Sub OccurancesComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles OccurancesComboBox.SelectedIndexChanged
+        Dim SelectedItem = OccurancesComboBox.SelectedItem.ToString()
+
+        If SelectedItem = "Daily" Then 'Select all checkboxes
+            SunCheckBox.Checked = True
+            MCheckbox.Checked = True
+            TCheckBox.Checked = True
+            WCheckbox.Checked = True
+            ThCheckBox.Checked = True
+            FCheckBox.Checked = True
+            SatCheckBox.Checked = True
+
+            SunCheckBox.Enabled = False
+            MCheckbox.Enabled = False
+            TCheckBox.Enabled = False
+            WCheckbox.Enabled = False
+            ThCheckBox.Enabled = False
+            FCheckBox.Enabled = False
+            SatCheckBox.Enabled = False
+        ElseIf SelectedItem = "Weekly" Then 'Clear out the checkboxes and have the user choose
+            SunCheckBox.Checked = False
+            MCheckbox.Checked = False
+            TCheckBox.Checked = False
+            WCheckbox.Checked = False
+            ThCheckBox.Checked = False
+            FCheckBox.Checked = False
+            SatCheckBox.Checked = False
+
+            SunCheckBox.Enabled = True
+            MCheckbox.Enabled = True
+            TCheckBox.Enabled = True
+            WCheckbox.Enabled = True
+            ThCheckBox.Enabled = True
+            FCheckBox.Enabled = True
+            SatCheckBox.Enabled = True
+            Select Case Today.DayOfWeek
+                Case DayOfWeek.Sunday
+                    SunCheckBox.Checked = True
+                Case DayOfWeek.Monday
+                    MCheckbox.Checked = True
+                Case DayOfWeek.Tuesday
+                    TCheckBox.Checked = True
+                Case DayOfWeek.Wednesday
+                    WCheckbox.Checked = True
+                Case DayOfWeek.Thursday
+                    ThCheckBox.Checked = True
+                Case DayOfWeek.Friday
+                    FCheckBox.Checked = True
+                Case DayOfWeek.Saturday
+                    SatCheckBox.Checked = True
+            End Select
+        End If
+
+        ActivateBackupBtn()
     End Sub
 
     Private Sub CurrentPlanList_MouseDoubleClickEvent(sender As Object, e As DataGridViewCellMouseEventArgs) Handles CurrentPlanList.CellMouseDoubleClick
         'Prompt the user on whether or not they would want to modify the backup plan of their choosing 
         Dim PlanRowIndex = e.RowIndex
+        If PlanRowIndex < 0 Then
+            Return
+        End If
         Dim PlanName = CurrentPlanList.Item(0, e.RowIndex).Value
-        Dim PlanBackupType = CurrentPlanList.Item(4, e.RowIndex).Value
+        Dim PlanBackupType = CurrentPlanList.Item(5, e.RowIndex).Value
         Dim Response = MsgBox("Do you want to delete the following backup plan?" & vbCrLf & CurrentPlanList.Item(0, e.RowIndex).Value, vbYesNo, "Delete Backup Plan")
 
         If Response = vbYes Then
@@ -335,6 +589,10 @@ Public Class Form1
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         PopulatePlansTable() 'Populating Plans Data table'
+        EndingBackupDateAndTimePicker.MinDate = Today.AddDays(1)
     End Sub
 
+    Private Sub EndingBackupDateAndTimePicker_ValueChanged(sender As Object, e As EventArgs) Handles EndingBackupDateAndTimePicker.ValueChanged
+        EndBackupDate = EndingBackupDateAndTimePicker.Value
+    End Sub
 End Class

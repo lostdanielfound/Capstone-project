@@ -8,7 +8,38 @@ Imports Newtonsoft.Json.Linq
 Module Module1
     Dim BackupPlansPath = ""
 
-    Sub UpdateBackUpPlans(PlanName As String, ST As Integer)
+    Function GetNextCustomBackUpDate(CustomDaysString As String) As Date
+        ' comma-separated string
+        Dim DaysList As New List(Of String)(CustomDaysString.Split(","c))
+
+        ' Create an boolean day array
+        Dim DaysToStrings = New String() {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"}
+        Dim DaysToBoolean = New Boolean() {0, 0, 0, 0, 0, 0, 0}
+
+        For Each day As String In DaysList
+            For index = 0 To 6
+                If day = DaysToStrings(index) Then
+                    DaysToBoolean(index) = True
+                End If
+            Next
+        Next
+
+        Dim DaysCounter = 1
+        Dim CurrentDay = Now.DayOfWeek
+        Dim DaysIndex = CurrentDay + 1
+
+        While DaysIndex <> CurrentDay Mod 7
+            If DaysToBoolean(DaysIndex) Then
+                Exit While
+            End If
+            DaysCounter += 1
+            DaysIndex = (DaysIndex + 1) Mod 7
+        End While
+
+        Return Now.AddDays(DaysCounter)
+    End Function
+
+    Sub UpdateBackUpPlans(PlanName As String, ST As Integer, Optional CustomDaysString As String = "")
         Dim jsonManipObj As JsonManip = New JsonManip()
         jsonManipObj.SetJsonFile(BackupPlansPath)
 
@@ -21,15 +52,21 @@ Module Module1
                 jsonManipObj.ModifyPlanObject_Nxt_backup(PlanName, Now.AddMonths(1).ToString())
             Case ScheduleType.Yearly
                 jsonManipObj.ModifyPlanObject_Nxt_backup(PlanName, Now.AddYears(1).ToString())
+            Case ScheduleType.Custom
+                jsonManipObj.ModifyPlanObject_Nxt_backup(PlanName, GetNextCustomBackUpDate(CustomDaysString))
         End Select
+
+        jsonManipObj.ModifyPlanObject_Previous_backup(PlanName, Now.ToString())
     End Sub
 
     Sub FullBackUp(args As String())
         Dim DestinationPath = args(2) & "\" & args(5) & "_Backup.zip"
 
-        If File.Exists(DestinationPath) Then
-            File.Delete(DestinationPath)
-        End If
+        Dim Counter = 1
+        While File.Exists(DestinationPath)
+            DestinationPath = args(2) & "\" & args(5) & "_Backup" & Counter & ".zip"
+            Counter += 1
+        End While
 
         ZipFile.CreateFromDirectory(args(1), DestinationPath, CompressionLevel.Fastest, False)
     End Sub
@@ -308,6 +345,7 @@ Module Module1
     End Sub
 
     Sub Main()
+        Dim Debugmode = False
         ' Program will be recieving the following arguments, 
         ' Arguments are avilable through the args array as 0-index
         ' Src = 1
@@ -315,31 +353,44 @@ Module Module1
         ' ScheduleT = 3
         ' BackUpType = 4
         ' BackUpName = 5
-        '
+        ' [DaysList = 6] optional
+        ' 
+        ' schtasks /create /sc weekly /d WED,THU,SAT /tn "BoxIT_kljk_IncrementalBackup" /tr "C:\Users\Guzman\Desktop\Capstone-project\BoxIT_Project\bin\Debug\net6.0-windows\Zip_Process_Release\Zip_Process.exe C:\Users\Guzman\Desktop\http-codes C:\Users\Guzman\Desktop\Logs - Copy 4 1 kljk WED,THU,SAT"
         ' The file that is output should be the following format: 
         ' [Name of backup]_Backup.zip
-
         BackupPlansPath = System.AppDomain.CurrentDomain.BaseDirectory() & "\..\" & "Plans.json"
 
         Dim args = Environment.GetCommandLineArgs() 'Get command line args
+
+        If Debugmode Then
+            Console.WriteLine(args.Length)
+            Dim text = "Quote"
+            Console.WriteLine("Test in " & Chr(34) & text & Chr(34))
+            For Each arg In args
+                Console.WriteLine(arg)
+            Next
+
+            Return
+        End If
         If args.Length <= 1 Then 'Zip process was passed no arguments, can't continue
             Return
         End If
 
         Dim BackUpName = args(5)
         Dim BackUpType = args(4)
-        Dim ScheduleType = args(3)
+        Dim Schedule = args(3)
+        Dim CustomDaysString = ""
+        If Schedule = ScheduleType.Custom Then
+            CustomDaysString = args(6)
+        End If
 
         Select Case BackUpType
             Case BackupPlan.FullBackup
                 FullBackUp(args)
-                UpdateBackUpPlans(BackUpName, ScheduleType)
+                UpdateBackUpPlans(BackUpName, Schedule, CustomDaysString)
             Case BackupPlan.IncrementalBackup
                 IncrementalBackUp(args)
-                UpdateBackUpPlans(BackUpName, ScheduleType)
-            Case BackupPlan.DifferentialBackup
-                DifferentialBackUp(args)
-                UpdateBackUpPlans(BackUpName, ScheduleType)
+                UpdateBackUpPlans(BackUpName, Schedule, CustomDaysString)
         End Select
     End Sub
 End Module
