@@ -10,7 +10,6 @@ This type of application is meant to target enterprises that need software to se
  - Full-Backup
  - Incremental-backup
  - Customizable backup
- - Encrypted backup (Coming soon)
 
 ### Showcase
   (To be added soon) 
